@@ -286,10 +286,10 @@ async function supFetch(method, path, body) {
       headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY, 'Content-Type': 'application/json' },
       body: body ? JSON.stringify(body) : null
     });
-    if (!res.ok) { console.warn('Supabase', method, path, res.status); return null; }
+    if (!res.ok) { var txt = await res.text(); console.warn('Supabase error', method, path, res.status, txt); return null; }
     if (method === 'GET') return await res.json();
     return true;
-  } catch (e) { return null; }
+  } catch (e) { console.warn('Supabase fetch failed', e); return null; }
 }
 
 // Device ID
