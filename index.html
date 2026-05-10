@@ -353,61 +353,76 @@ function showPickBadge(g) {
   b.classList.add('show');
 }
 
-async function cv(g) {
-  if (!await ensureSB()) return;
-  var my = await fetchMyVote();
-  if (my === g) return;
-
-  if (my) {
-    await sb.from('votes').update({ gender: g }).eq('voter_id', did);
-  } else {
-    await sb.from('votes').insert({ gender: g, voter_id: did });
-  }
-
-  // UI
+function applyVoteUI(g) {
   document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
-  document.querySelector('.card-' + g).classList.add('voted');
-  document.querySelector('.card-' + (g === 'boy' ? 'girl' : 'boy')).classList.add('disabled');
-
-  var r = document.getElementById('res');
-  r.className = 'res show res-' + g;
-  r.innerHTML = g === 'boy'
-    ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
-    : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
-  document.getElementById('chg').classList.add('show');
-  showPickBadge(g);
-
-  launchConfetti(g);
-  await refreshTally();
-}
-
-async function chVote() {
-  if (!sb) return;
-  var my = await fetchMyVote();
-  if (!my) return;
-  await sb.from('votes').delete().eq('voter_id', did);
-
-  document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
-  document.getElementById('res').className = 'res';
-  document.getElementById('chg').classList.remove('show');
-  showPickBadge(null);
-  await refreshTally();
-}
-
-async function restoreVote() {
-  if (!await ensureSB()) return;
-  var my = await fetchMyVote();
-  if (my) {
-    document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
-    document.querySelector('.card-' + my).classList.add('voted');
-    document.querySelector('.card-' + (my === 'boy' ? 'girl' : 'boy')).classList.add('disabled');
+  if (g) {
+    document.querySelector('.card-' + g).classList.add('voted');
+    document.querySelector('.card-' + (g === 'boy' ? 'girl' : 'boy')).classList.add('disabled');
     var r = document.getElementById('res');
-    r.className = 'res show res-' + my;
-    r.innerHTML = my === 'boy'
+    r.className = 'res show res-' + g;
+    r.innerHTML = g === 'boy'
       ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
       : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
     document.getElementById('chg').classList.add('show');
-    showPickBadge(my);
+    showPickBadge(g);
+  } else {
+    document.getElementById('res').className = 'res';
+    document.getElementById('chg').classList.remove('show');
+    showPickBadge(null);
+  }
+}
+
+function localVote(g) {
+  if (g) localStorage.setItem('gv_vote', g);
+  else localStorage.removeItem('gv_vote');
+  applyVoteUI(g);
+}
+
+function getLocalVote() {
+  return localStorage.getItem('gv_vote');
+}
+
+async function syncVoteToSB(g) {
+  if (!await ensureSB()) return;
+  var my = await fetchMyVote();
+  if (my === g) return;
+  try {
+    if (g) {
+      if (my) await sb.from('votes').update({ gender: g }).eq('voter_id', did);
+      else await sb.from('votes').insert({ gender: g, voter_id: did });
+    } else {
+      if (my) await sb.from('votes').delete().eq('voter_id', did);
+    }
+    await refreshTally();
+  } catch (e) {}
+}
+
+async function cv(g) {
+  var my = getLocalVote();
+  if (my === g) return;
+  localVote(g);
+  launchConfetti(g);
+  if (g !== null) syncVoteToSB(g);
+}
+
+async function chVote() {
+  if (!getLocalVote()) return;
+  localVote(null);
+  syncVoteToSB(null);
+}
+
+async function restoreVote() {
+  // Apply local vote immediately
+  var lv = getLocalVote();
+  if (lv) { applyVoteUI(lv); }
+
+  // Try Supabase for cross-device sync
+  if (!await ensureSB()) return;
+  var my = await fetchMyVote();
+  if (my && my !== lv) {
+    localVote(my);
+  } else if (!my && lv) {
+    syncVoteToSB(lv);
   }
   await refreshTally();
 
