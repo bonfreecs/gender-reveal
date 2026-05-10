@@ -650,6 +650,12 @@ function showPuzzle() {
 
 function closePuzzle() {
   document.getElementById('pz').classList.remove('show');
+  if (!musicPlaying) {
+    music.play().then(function() {
+      musicBtn.classList.add('playing');
+      musicPlaying = true;
+    }).catch(function(e) {});
+  }
 }
 </script>
 </body>
