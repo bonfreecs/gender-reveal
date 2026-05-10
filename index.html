@@ -62,46 +62,8 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 .res-girl{background:#fce4ec;color:#880e4f}
 .chg{margin-top:10px;padding:6px 18px;border-radius:20px;border:none;background:rgba(255,255,255,.7);color:#7e57c2;font-weight:700;cursor:pointer;opacity:0;transition:opacity .3s}
 .chg.show{opacity:1}
-.tally{margin-top:26px;padding-top:22px;border-top:2px dashed rgba(206,147,216,.3);opacity:0;transform:translateY(16px);transition:all .6s}
-.tally.show{opacity:1;transform:translateY(0)}
-.tally h3{font-size:1.15rem;color:#7e57c2;margin-bottom:4px}
-.tally p{font-size:.78rem;color:#b39ddb;margin-bottom:14px}
-.tr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.tl{min-width:34px;font-weight:700;text-align:right}
-.tb{flex:1;height:22px;border-radius:12px;background:rgba(255,255,255,.5);overflow:hidden}
-.tbf{height:100%;border-radius:12px;width:0%;transition:width 1s}
-.tbf.boy{background:linear-gradient(90deg,#90caf9,#42a5f5)}
-.tbf.girl{background:linear-gradient(90deg,#f48fb1,#ec407a)}
-.ts{min-width:66px;font-weight:700;font-size:.82rem}
-.tt{margin-top:10px;font-size:.82rem;color:#9575cd;font-weight:700}
 #cc{position:fixed;inset:0;pointer-events:none;z-index:100}
 .ft{margin-top:26px;font-size:.72rem;color:#b39ddb}
-
-/* Reveal Overlay */
-.reveal{
-  position:fixed;inset:0;z-index:300;
-  display:flex;flex-direction:column;justify-content:center;align-items:center;
-  background:linear-gradient(135deg,#fce4ec,#e8f5fe,#f3e5f5);
-  background-size:400% 400%;animation:bgs 12s ease infinite;
-  opacity:0;pointer-events:none;transition:opacity 1.2s ease;padding:20px;
-}
-.reveal.show{opacity:1;pointer-events:auto}
-.rev-box{max-width:620px;width:100%;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);border-radius:56px;padding:50px 36px 44px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.12);transform:scale(.9);transition:transform 1s cubic-bezier(.34,1.56,.64,1)}
-.reveal.show .rev-box{transform:scale(1)}
-.rev-title{font-size:2.4rem;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
-.rev-sub{font-size:1rem;color:#7e57c2;font-weight:600;margin-bottom:28px}
-.rev-bar{margin-bottom:16px}
-.rev-bar-label{font-size:1.1rem;font-weight:700;margin-bottom:6px}
-.rev-bar-label span{font-weight:400;color:#888}
-.rev-track{height:36px;border-radius:18px;background:rgba(255,255,255,.5);overflow:hidden;position:relative}
-.rev-fill{height:100%;border-radius:18px;width:0%;transition:width 2s cubic-bezier(.34,1.56,.64,1)}
-.rev-fill.blue{background:linear-gradient(90deg,#64b5f6,#1e88e5)}
-.rev-fill.pink{background:linear-gradient(90deg,#f06292,#e91e63)}
-.rev-stat{font-size:.9rem;color:#666;margin-top:4px;font-weight:600}
-.rev-total{font-size:1.1rem;color:#7e57c2;font-weight:700;margin-top:20px}
-.rev-badge{display:inline-block;margin-top:24px;padding:10px 36px;border-radius:40px;font-size:1.3rem;font-weight:800;letter-spacing:1px}
-.rev-badge.boy{background:linear-gradient(135deg,#bbdefb,#42a5f5);color:#0d47a1}
-.rev-badge.girl{background:linear-gradient(135deg,#f8bbd0,#ec407a);color:#880e4f}
 
 @media(max-width:600px){
   .box{padding:32px 18px 28px}
@@ -128,7 +90,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <div class="box">
     <h1>Who's Coming?</h1>
     <p class="sub">&#x1F497; A little miracle is on the way &#x1F497;</p>
-<p style="font-size:.78rem;color:#b39ddb;margin-top:-20px;margin-bottom:24px">Countdown ends 6:10 PM PHT</p>
+<p style="font-size:.78rem;color:#b39ddb;margin-top:-20px;margin-bottom:24px">Voting ends 6:20 PM PHT</p>
     <div class="cd">
       <div class="cd-item"><span class="cd-num" id="d">00</span><span class="cd-lbl">Days</span></div>
       <div class="cd-item"><span class="cd-num" id="h">00</span><span class="cd-lbl">Hours</span></div>
@@ -149,7 +111,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     <div class="cd-item"><span class="cd-num" id="m2">00</span><span class="cd-lbl">Minutes</span></div>
     <div class="cd-item"><span class="cd-num" id="s2">00</span><span class="cd-lbl">Seconds</span></div>
   </div>
-  <p style="font-size:.78rem;color:#b39ddb;margin-bottom:18px">Countdown ends 6:10 PM PHT</p>
+  <p style="font-size:.78rem;color:#b39ddb;margin-bottom:18px">Voting ends 6:20 PM PHT</p>
 
   <div class="pick-badge" id="pickBadge">
     <span class="pick-icon" id="pickIcon">&#x1F466;</span>
@@ -176,57 +138,21 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <div class="res" id="res"></div>
   <button class="chg" id="chg" onclick="chVote()">&#x2190; Change My Vote</button>
 
-  <div class="tally" id="tal">
-    <h3>&#x1F4CA; Live Results</h3>
-    <p>See how everyone's voting!</p>
-    <div class="tr">
-      <span class="tl">&#x1F466;</span>
-      <div class="tb"><div class="tbf boy" id="bb"></div></div>
-      <span class="ts" id="bs">0 (0%)</span>
-    </div>
-    <div class="tr">
-      <span class="tl">&#x1F467;</span>
-      <div class="tb"><div class="tbf girl" id="gb"></div></div>
-      <span class="ts" id="gs">0 (0%)</span>
-    </div>
-    <p class="tt" id="tot">Total votes: 0</p>
-  </div>
-
   <p class="ft">Made with &#x1F497; for the big surprise</p>
 </div>
 
-<!-- REVEAL TABULATION -->
-<div class="reveal" id="rev">
-  <div class="rev-box">
-    <p class="rev-title">&#x1F389; The Results Are In! &#x1F389;</p>
-    <p class="rev-sub">Here's what everyone guessed</p>
-    <div class="rev-bar">
-      <div class="rev-bar-label">&#x1F466; Boy <span id="rbCount">0</span></div>
-      <div class="rev-track"><div class="rev-fill blue" id="rb"></div></div>
-      <div class="rev-stat" id="rbPct">0%</div>
-    </div>
-    <div class="rev-bar">
-      <div class="rev-bar-label">&#x1F467; Girl <span id="rgCount">0</span></div>
-      <div class="rev-track"><div class="rev-fill pink" id="rg"></div></div>
-      <div class="rev-stat" id="rgPct">0%</div>
-    </div>
-    <p class="rev-total" id="revTot">Total votes: 0</p>
-    <div class="rev-badge" id="winner">&#x1F31F;</div>
-    <button onclick="closeReveal()" style="margin-top:24px;padding:8px 28px;border-radius:40px;border:none;background:rgba(255,255,255,.6);color:#7e57c2;font-weight:700;cursor:pointer;font-size:.9rem">&#x2190; Dismiss &amp; Continue Testing</button>
-  </div>
-</div>
+
 
 <script>
 // ═══════════════════════════════════════════════
 // COUNTDOWN (FIRST - no dependencies)
 // ═══════════════════════════════════════════════
 const DUE = '2026-05-10T18:20:00+08:00';
-let revealed = false;
 
 function updateCD() {
-  const now = Date.now();
   const target = new Date(DUE).getTime();
-  let diff = target - now;
+  let diff = Date.now();
+  diff = target - diff;
   if (diff < 0) diff = 0;
 
   const days = Math.floor(diff / 86400000);
@@ -244,12 +170,6 @@ function updateCD() {
   document.getElementById('h2').textContent = pad(hours);
   document.getElementById('m2').textContent = pad(mins);
   document.getElementById('s2').textContent = pad(secs);
-
-  // Check reveal at 5 minutes (300000ms)
-  if (diff > 0 && diff <= 300000 && !revealed) {
-    revealed = true;
-    showReveal();
-  }
 }
 
 updateCD();
@@ -298,28 +218,6 @@ if (!did) {
   try { did = crypto.randomUUID(); } catch (e) {}
   if (!did) did = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
   localStorage.setItem('gv_id', did);
-}
-
-// Tally display
-function renderTally(b, g) {
-  var t = b + g;
-  var bp = t > 0 ? Math.round(b / t * 100) : 0;
-  var gp = t > 0 ? Math.round(g / t * 100) : 0;
-  var sec = document.getElementById('tal');
-  if (!sec.classList.contains('show')) {
-    setTimeout(function() { sec.classList.add('show'); }, 100);
-  }
-  document.getElementById('bb').style.width = bp + '%';
-  document.getElementById('gb').style.width = gp + '%';
-  document.getElementById('bs').textContent = b + ' (' + bp + '%)';
-  document.getElementById('gs').textContent = g + ' (' + gp + '%)';
-  document.getElementById('tot').textContent = 'Total votes: ' + t;
-}
-
-async function refreshTally() {
-  var data = await supFetch('GET', '/rest/v1/votes?select=boy,girl');
-  if (!data || !data.length) return;
-  renderTally(data[0].boy, data[0].girl);
 }
 
 async function fetchMyVote() {
@@ -409,7 +307,6 @@ async function syncVoteToSB(g) {
   if (boy < 0) boy = 0; if (girl < 0) girl = 0;
 
   await supFetch('PATCH', '/rest/v1/votes?id=eq.1', { boy: boy, girl: girl, voters: newVoters });
-  await refreshTally();
 }
 
 async function cv(g) {
@@ -432,8 +329,6 @@ async function restoreVote() {
   var my = await fetchMyVote();
   if (my && my !== lv) { localVote(my); }
   else if (!my && lv) { syncVoteToSB(lv); }
-  await refreshTally();
-  setInterval(refreshTally, 5000);
 }
 
 // ═══════════════════════════════════════════════
@@ -445,65 +340,6 @@ document.getElementById('eb').onclick = function() {
   setTimeout(function() { launchConfetti('girl'); }, 300);
   restoreVote();
 };
-
-// ═══════════════════════════════════════════════
-// REVEAL TABULATION
-// ═══════════════════════════════════════════════
-async function showReveal() {
-  document.querySelector('.cards').style.display = 'none';
-  document.getElementById('res').style.display = 'none';
-  document.getElementById('chg').style.display = 'none';
-  document.querySelector('.q').innerHTML = '\u{1F3C6} Voting is closed! \u{1F3C6}';
-
-  var data = await supFetch('GET', '/rest/v1/votes?select=boy,girl');
-  var b = 0, g = 0;
-  if (data && data.length) {
-    b = data[0].boy || 0;
-    g = data[0].girl || 0;
-  }
-
-  var t = b + g;
-  var bp = t > 0 ? Math.round(b / t * 100) : 0;
-  var gp = t > 0 ? Math.round(g / t * 100) : 0;
-
-  document.getElementById('rbCount').textContent = b;
-  document.getElementById('rgCount').textContent = g;
-  document.getElementById('rbPct').textContent = bp + '%';
-  document.getElementById('rgPct').textContent = gp + '%';
-  document.getElementById('revTot').textContent = 'Total votes: ' + t;
-
-  document.getElementById('rev').classList.add('show');
-
-  setTimeout(function() {
-    document.getElementById('rb').style.width = bp + '%';
-    document.getElementById('rg').style.width = gp + '%';
-  }, 300);
-
-  setTimeout(function() {
-    var w = document.getElementById('winner');
-    if (b > g) {
-      w.className = 'rev-badge boy';
-      w.innerHTML = '\u{1F466} Team Boy Wins!';
-      launchConfetti('boy');
-    } else if (g > b) {
-      w.className = 'rev-badge girl';
-      w.innerHTML = '\u{1F467} Team Girl Wins!';
-      launchConfetti('girl');
-    } else {
-      w.className = 'rev-badge';
-      w.innerHTML = '\u{1F91D} It\'s a Tie!';
-      launchConfetti('boy');
-      setTimeout(function() { launchConfetti('girl'); }, 300);
-    }
-    setTimeout(function() { launchConfetti('boy'); }, 400);
-    setTimeout(function() { launchConfetti('girl'); }, 700);
-  }, 2500);
-}
-
-function closeReveal() {
-  document.getElementById('rev').classList.remove('show');
-  document.getElementById('rev').style.display = 'none';
-}
 
 // ═══════════════════════════════════════════════
 // CONFETTI
