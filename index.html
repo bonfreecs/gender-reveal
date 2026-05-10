@@ -505,13 +505,13 @@ async function showReveal() {
 // ═══════════════════════════════════════════════
 // CONFETTI
 // ═══════════════════════════════════════════════
-var cv = document.getElementById('cc');
-var cx = cv.getContext('2d');
+var canv = document.getElementById('cc');
+var cx = canv.getContext('2d');
 var W, H;
 
 function rs() {
-  W = cv.width = window.innerWidth;
-  H = cv.height = window.innerHeight;
+  W = canv.width = window.innerWidth;
+  H = canv.height = window.innerHeight;
 }
 rs();
 window.addEventListener('resize', rs);
