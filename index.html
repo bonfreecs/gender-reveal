@@ -83,22 +83,19 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 .wc button:last-child:hover{background:rgba(0,0,0,.1)}
 .pz{position:fixed;inset:0;z-index:500;display:flex;justify-content:center;align-items:center;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);pointer-events:none;opacity:0;transition:opacity .6s}
 .pz.show{opacity:1}
-.pz-inner{position:relative;width:500px;height:320px;display:flex;align-items:center;justify-content:center}
-.pz-img{position:absolute;width:240px;height:320px;object-fit:cover;opacity:0;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.35)}
-.pz-img.l1{left:0;transform:translate(-120vw,-40vh) rotate(-45deg) scale(.6)}
-.pz-img.l2{left:0;transform:translate(-120vw,40vh) rotate(25deg) scale(.6)}
-.pz-img.r1{right:0;transform:translate(120vw,-40vh) rotate(45deg) scale(.6)}
-.pz-img.r2{right:0;transform:translate(120vw,40vh) rotate(-25deg) scale(.6)}
-.pz.show .pz-img.l1{animation:pzIn1 1s cubic-bezier(.34,1.56,.64,1) forwards}
-.pz.show .pz-img.l2{animation:pzIn2 1.1s cubic-bezier(.34,1.56,.64,1) .15s forwards}
-.pz.show .pz-img.r1{animation:pzIn3 1s cubic-bezier(.34,1.56,.64,1) .3s forwards}
-.pz.show .pz-img.r2{animation:pzIn4 1.1s cubic-bezier(.34,1.56,.64,1) .45s forwards}
-@keyframes pzIn1{0%{opacity:0}60%{opacity:1}100%{opacity:1;transform:translate(-8px,-6px) rotate(-2deg) scale(1)}}
-@keyframes pzIn2{0%{opacity:0}60%{opacity:1}100%{opacity:1;transform:translate(-8px,6px) rotate(2deg) scale(1)}}
-@keyframes pzIn3{0%{opacity:0}60%{opacity:1}100%{opacity:1;transform:translate(8px,-6px) rotate(2deg) scale(1)}}
-@keyframes pzIn4{0%{opacity:0}60%{opacity:1}100%{opacity:1;transform:translate(8px,6px) rotate(-2deg) scale(1)}}
+.pz-inner{position:relative;width:400px;height:500px}
+.pz-p{position:absolute;width:200px;height:250px;background-image:url(images/baby1.jpg);background-size:200% 200%;border-radius:12px;box-shadow:0 15px 40px rgba(0,0,0,.35);opacity:0}
+.pz-p.p1{background-position:0 0;left:0;top:0;transform:translate(-120vw,-80vh) rotate(-35deg) scale(.5)}
+.pz-p.p2{background-position:100% 0;right:0;top:0;transform:translate(120vw,-80vh) rotate(35deg) scale(.5)}
+.pz-p.p3{background-position:0 100%;left:0;bottom:0;transform:translate(-120vw,80vh) rotate(35deg) scale(.5)}
+.pz-p.p4{background-position:100% 100%;right:0;bottom:0;transform:translate(120vw,80vh) rotate(-35deg) scale(.5)}
+.pz.show .pz-p{animation:pzFly .9s cubic-bezier(.34,1.56,.64,1) forwards}
+.pz.show .pz-p.p2{animation-delay:.12s}
+.pz.show .pz-p.p3{animation-delay:.24s}
+.pz.show .pz-p.p4{animation-delay:.36s}
+@keyframes pzFly{0%{opacity:0}50%{opacity:1}100%{opacity:1;transform:translate(0,0) rotate(0deg) scale(1)}}
 .pz-close{position:fixed;bottom:40px;left:50%;transform:translateX(-50%);padding:10px 32px;border-radius:40px;border:none;background:rgba(255,255,255,.85);color:#7e57c2;font-weight:700;font-size:.9rem;cursor:pointer;pointer-events:auto;opacity:0;transition:opacity .6s;z-index:501}
-.pz.show .pz-close{opacity:1;transition-delay:1s}
+.pz.show .pz-close{opacity:1;transition-delay:1.2s}
 
 @media(max-width:600px){
   .box{padding:32px 18px 28px}
@@ -193,10 +190,10 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 <!-- PUZZLE REVEAL OVERLAY -->
 <div class="pz" id="pz">
   <div class="pz-inner">
-    <img class="pz-img l1" src="images/baby1.jpg" alt="">
-    <img class="pz-img l2" src="images/baby2.jpg" alt="">
-    <img class="pz-img r1" src="images/baby1.jpg" alt="">
-    <img class="pz-img r2" src="images/baby2.jpg" alt="">
+    <div class="pz-p p1"></div>
+    <div class="pz-p p2"></div>
+    <div class="pz-p p3"></div>
+    <div class="pz-p p4"></div>
   </div>
   <button class="pz-close" onclick="closePuzzle()">&#x2716; Close</button>
 </div>
@@ -615,12 +612,11 @@ drawWheel(0);
 
 function showPuzzle() {
   var pz = document.getElementById('pz');
-  // Reset animation by removing and re-adding images
-  var imgs = pz.querySelectorAll('.pz-img');
-  imgs.forEach(function(img) {
-    img.style.animation = 'none';
-    void img.offsetHeight;
-    img.style.animation = '';
+  var pieces = pz.querySelectorAll('.pz-p');
+  pieces.forEach(function(p) {
+    p.style.animation = 'none';
+    void p.offsetHeight;
+    p.style.animation = '';
   });
   pz.classList.add('show');
 }
