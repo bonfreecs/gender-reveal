@@ -110,7 +110,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 @keyframes heartPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 .pr-title{font-size:clamp(4rem,18vw,12rem);font-weight:900;line-height:1.05;margin-bottom:4px;text-shadow:0 4px 20px rgba(0,0,0,.08)}
 .pr-line{display:block;overflow:hidden;height:1.1em}
-.pr-let{display:inline-block;opacity:0;transform:translateY(100%) rotate(15deg);animation:letIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.pr-let{display:inline-block;opacity:0;transform:translateY(100%) rotate(15deg)}
 .pr.show .pr-let{animation:letIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
 @keyframes letIn{0%{opacity:0;transform:translateY(100%) rotate(15deg)}100%{opacity:1;transform:translateY(0) rotate(0deg)}}
 .pr-sub{font-size:clamp(1rem,4vw,2rem);color:#7e57c2;font-weight:700;margin-top:20px;opacity:0;animation:fadeUp .8s ease forwards;animation-delay:2s}
@@ -228,7 +228,6 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <div class="pr-box">
     <div class="pr-hearts">&#x1F498;</div>
     <div class="pr-title" id="prTitle"></div>
-    <div class="pr-sub">&#x2728; A new journey begins &#x2728;</div>
     <div class="pr-emoji">&#x1F48D; &#x1F490; &#x1F338;</div>
   </div>
 </div>
