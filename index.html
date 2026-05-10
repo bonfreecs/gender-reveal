@@ -175,6 +175,15 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 
 <script>
 // ═══════════════════════════════════════════════
+// CACHE BUSTER - force correct text
+// ═══════════════════════════════════════════════
+document.querySelector('.wb').textContent = '\u{1F3AF} Reveal the Gender \u{1F3AF}';
+var ver = document.createElement('div');
+ver.style.cssText = 'position:fixed;bottom:4px;right:8px;font-size:10px;color:#d7c4e8;z-index:999;pointer-events:none';
+ver.textContent = 'v' + Date.now();
+document.body.appendChild(ver);
+
+// ═══════════════════════════════════════════════
 // COUNTDOWN (FIRST - no dependencies)
 // ═══════════════════════════════════════════════
 const DUE = '2026-05-10T20:00:00+08:00';
