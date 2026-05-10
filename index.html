@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Who's Coming? — Gender Reveal</title>
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
-  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -489,90 +488,45 @@
       document.getElementById('splash').classList.add('hidden');
       launchConfetti('boy');
       setTimeout(() => launchConfetti('girl'), 300);
-      // restore vote state on enter
       restoreVoteState();
     }
 
     // ──────────────────────────────────────────────
-    // 4. Supabase Real-time Voting
+    // 4. Voting System (localStorage)
     // ──────────────────────────────────────────────
-    const SUPABASE_URL = 'https://vnwmzvbflwtgvxwmupms.supabase.co';
-    const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZud216dmJmbHd0Z3Z4d211cG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDg3MjAsImV4cCI6MjA5MzkyNDcyMH0.V4nNsKeeU9_dVcRnlr7FU9xyWAPg3SUPeMiLUweGyuU';
-    let supabase = null;
+    const STORAGE_KEY = 'genderRevealVotes';
 
-    try {
-      if (typeof self.supabase !== 'undefined') {
-        supabase = self.supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
-      } else {
-        console.warn('Supabase SDK not loaded. Voting will be disabled.');
-      }
-    } catch (e) {
-      console.warn('Supabase init failed:', e);
+    function getVoteData() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) return JSON.parse(raw);
+      } catch (_) {}
+      return { myVote: null, boy: 0, girl: 0 };
     }
 
-    // Unique device ID (stays the same across page refreshes)
-    const VOTER_ID_KEY = 'genderRevealVoterId';
-    function getVoterId() {
-      let id = localStorage.getItem(VOTER_ID_KEY);
-      if (!id) {
-        try { id = crypto.randomUUID(); } catch (_) {}
-        if (!id) id = Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
-        localStorage.setItem(VOTER_ID_KEY, id);
-      }
-      return id;
-    }
-    const voterId = getVoterId();
-
-    // ── Fetch and tally all votes ──
-    async function fetchAndApplyTally() {
-      if (!supabase) return;
-      const { data: votes } = await supabase.from('votes').select('gender');
-      if (!votes) return;
-
-      const boy = votes.filter(v => v.gender === 'boy').length;
-      const girl = votes.filter(v => v.gender === 'girl').length;
-      applyTally(boy, girl);
+    function saveVoteData(data) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
     }
 
-    // ── Check if this device already voted ──
-    async function fetchMyVote() {
-      if (!supabase) return null;
-      const { data } = await supabase.from('votes').select('gender').eq('voter_id', voterId).maybeSingle();
-      return data ? data.gender : null;
-    }
+    function castVote(gender) {
+      const data = getVoteData();
 
-    // ── Cast or change vote ──
-    async function castVote(gender) {
-      if (!supabase) return;
-      const myVote = await fetchMyVote();
-      if (myVote === gender) return;
+      if (data.myVote === gender) return;
 
-      if (myVote) {
-        await supabase.from('votes').update({ gender }).eq('voter_id', voterId);
-      } else {
-        await supabase.from('votes').insert({ gender, voter_id: voterId });
-      }
+      if (data.myVote === 'boy') data.boy = Math.max(0, data.boy - 1);
+      if (data.myVote === 'girl') data.girl = Math.max(0, data.girl - 1);
+
+      data.myVote = gender;
+      if (gender === 'boy') data.boy += 1;
+      else data.girl += 1;
+
+      saveVoteData(data);
 
       applyVoteUI(gender);
+      updateTally(data);
       launchConfetti(gender);
-      await fetchAndApplyTally();
     }
 
-    // ── Remove vote ──
-    async function changeVote() {
-      if (!supabase) return;
-      const myVote = await fetchMyVote();
-      if (!myVote) return;
-
-      await supabase.from('votes').delete().eq('voter_id', voterId);
-
-      document.querySelectorAll('.card').forEach(c => c.classList.remove('voted', 'disabled'));
-      document.getElementById('result').className = 'result';
-      document.getElementById('changeBtn').classList.remove('show');
-      await fetchAndApplyTally();
-    }
-
-    // ── Apply UI for voted state ──
     function applyVoteUI(gender) {
       document.querySelectorAll('.card').forEach(c => c.classList.remove('voted', 'disabled'));
       document.querySelector(`.card-${gender}`).classList.add('voted');
@@ -586,11 +540,32 @@
       document.getElementById('changeBtn').classList.add('show');
     }
 
-    // ── Render tally ──
-    function applyTally(boyCount, girlCount) {
-      const total = boyCount + girlCount;
-      const boyPct = total > 0 ? Math.round((boyCount / total) * 100) : 0;
-      const girlPct = total > 0 ? Math.round((girlCount / total) * 100) : 0;
+    function changeVote() {
+      const data = getVoteData();
+      if (!data.myVote) return;
+
+      if (data.myVote === 'boy') data.boy = Math.max(0, data.boy - 1);
+      if (data.myVote === 'girl') data.girl = Math.max(0, data.girl - 1);
+      data.myVote = null;
+      saveVoteData(data);
+
+      document.querySelectorAll('.card').forEach(c => c.classList.remove('voted', 'disabled'));
+      document.getElementById('result').className = 'result';
+      document.getElementById('changeBtn').classList.remove('show');
+
+      updateTally(data);
+    }
+
+    function restoreVoteState() {
+      const data = getVoteData();
+      if (data.myVote) applyVoteUI(data.myVote);
+      updateTally(data);
+    }
+
+    function updateTally(data) {
+      const total = data.boy + data.girl;
+      const boyPct = total > 0 ? Math.round((data.boy / total) * 100) : 0;
+      const girlPct = total > 0 ? Math.round((data.girl / total) * 100) : 0;
 
       const section = document.getElementById('tallySection');
       if (!section.classList.contains('show')) {
@@ -599,26 +574,9 @@
 
       document.getElementById('boyBar').style.width = boyPct + '%';
       document.getElementById('girlBar').style.width = girlPct + '%';
-      document.getElementById('boyStat').textContent = boyCount + ' (' + boyPct + '%)';
-      document.getElementById('girlStat').textContent = girlCount + ' (' + girlPct + '%)';
+      document.getElementById('boyStat').textContent = data.boy + ' (' + boyPct + '%)';
+      document.getElementById('girlStat').textContent = data.girl + ' (' + girlPct + '%)';
       document.getElementById('totalVotes').textContent = 'Total votes: ' + total;
-    }
-
-    // ── Restore state on enter ──
-    async function restoreVoteState() {
-      const myVote = await fetchMyVote();
-      if (myVote) applyVoteUI(myVote);
-      await fetchAndApplyTally();
-    }
-
-    // ── Real-time subscription ──
-    if (supabase) {
-      supabase
-        .channel('votes-changes')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'votes' }, () => {
-          fetchAndApplyTally();
-        })
-        .subscribe();
     }
 
     // ──────────────────────────────────────────────
