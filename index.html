@@ -215,7 +215,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     <div class="pz-p p3"></div>
     <div class="pz-p p4"></div>
   </div>
-  <button class="pz-close" onclick="closePuzzle()">&#x2716; Close</button>
+  <button class="pz-close" id="pzCloseBtn">&#x2716; Close</button>
 </div>
 
 <!-- PROPOSAL OVERLAY -->
@@ -430,6 +430,7 @@ document.getElementById('eb').onclick = function() {
 
 document.getElementById('rwb').onclick = openWheel;
 document.getElementById('closeWheelBtn').onclick = closeWheel;
+document.getElementById('pzCloseBtn').onclick = closePuzzle;
 
 // Music toggle
 var musicBtn = document.getElementById('mbBtn');
@@ -672,17 +673,14 @@ function showPuzzle() {
 
 function closePuzzle() {
   document.getElementById('pz').classList.remove('show');
-  if (!musicPlaying) {
-    music.play().then(function() {
-      musicBtn.classList.add('playing');
-      musicPlaying = true;
-    }).catch(function(e) {});
-  }
+  // Start music silently
+  try { music.play().then(function(){musicBtn.classList.add('playing');musicPlaying=true}).catch(function(){}) } catch(e) {}
+  // Show proposal
   setTimeout(function() {
     document.getElementById('pr').classList.add('show');
     launchSparkles();
     setInterval(launchSparkles, 1800);
-  }, 800);
+  }, 500);
 }
 
 function launchSparkles() {
