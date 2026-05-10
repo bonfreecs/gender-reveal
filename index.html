@@ -272,31 +272,22 @@ setInterval(updateCD, 500);
 })();
 
 // ═══════════════════════════════════════════════
-// SUPABASE (dynamic load)
+// SUPABASE (direct REST API — no CDN needed)
 // ═══════════════════════════════════════════════
 const SUP_URL = 'https://vnwmzvbflwtgvxwmupms.supabase.co';
 const SUP_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZud216dmJmbHd0Z3Z4d211cG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDg3MjAsImV4cCI6MjA5MzkyNDcyMH0.V4nNsKeeU9_dVcRnlr7FU9xyWAPg3SUPeMiLUweGyuU';
-let sb = null;
 
-function loadSB() {
-  return new Promise(function(resolve) {
-    if (typeof self.supabase !== 'undefined') {
-      sb = self.supabase.createClient(SUP_URL, SUP_KEY);
-      resolve(true);
-      return;
-    }
-    var s = document.createElement('script');
-    s.src = 'https://unpkg.com/@supabase/supabase-js@2';
-    s.onload = function() {
-      sb = self.supabase.createClient(SUP_URL, SUP_KEY);
-      resolve(true);
-    };
-    s.onerror = function() {
-      console.warn('Supabase load failed');
-      resolve(false);
-    };
-    document.head.appendChild(s);
-  });
+async function supFetch(method, path, body) {
+  try {
+    var res = await fetch(SUP_URL + path, {
+      method: method,
+      headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY, 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : null
+    });
+    if (!res.ok) { console.warn('Supabase', method, path, res.status); return null; }
+    if (method === 'GET') return await res.json();
+    return true;
+  } catch (e) { return null; }
 }
 
 // Device ID
@@ -324,28 +315,26 @@ function renderTally(b, g) {
 }
 
 async function refreshTally() {
-  if (!sb) return;
-  try {
-    var res = await sb.from('votes').select('gender');
-    if (!res.data) return;
-    var b = res.data.filter(function(v) { return v.gender === 'boy'; }).length;
-    var g = res.data.filter(function(v) { return v.gender === 'girl'; }).length;
-    renderTally(b, g);
-  } catch (e) {}
-}
-
-// Vote functions
-async function ensureSB() {
-  if (sb) return true;
-  return await loadSB();
+  var data = await supFetch('GET', '/rest/v1/votes?select=gender');
+  if (!data) return;
+  var b = data.filter(function(v) { return v.gender === 'boy'; }).length;
+  var g = data.filter(function(v) { return v.gender === 'girl'; }).length;
+  renderTally(b, g);
 }
 
 async function fetchMyVote() {
-  if (!sb) return null;
-  try {
-    var res = await sb.from('votes').select('gender').eq('voter_id', did).maybeSingle();
-    return res.data ? res.data.gender : null;
-  } catch (e) { return null; }
+  var data = await supFetch('GET', '/rest/v1/votes?select=gender&voter_id=eq.' + encodeURIComponent(did) + '&limit=1');
+  return (data && data.length > 0) ? data[0].gender : null;
+}
+
+function showPickBadge(g) {
+  var b = document.getElementById('pickBadge');
+  var i = document.getElementById('pickIcon');
+  var t = document.getElementById('pickText');
+  if (!g) { b.classList.remove('show'); return; }
+  i.textContent = g === 'boy' ? '\u{1F466}' : '\u{1F467}';
+  t.textContent = g === 'boy' ? 'Your pick: Boy' : 'Your pick: Girl';
+  b.classList.add('show');
 }
 
 function showPickBadge(g) {
@@ -388,18 +377,15 @@ function getLocalVote() {
 }
 
 async function syncVoteToSB(g) {
-  if (!await ensureSB()) return;
   var my = await fetchMyVote();
   if (my === g) return;
-  try {
-    if (g) {
-      if (my) await sb.from('votes').update({ gender: g }).eq('voter_id', did);
-      else await sb.from('votes').insert({ gender: g, voter_id: did });
-    } else {
-      if (my) await sb.from('votes').delete().eq('voter_id', did);
-    }
-    await refreshTally();
-  } catch (e) {}
+  if (g) {
+    if (my) await supFetch('PATCH', '/rest/v1/votes?voter_id=eq.' + encodeURIComponent(did), { gender: g });
+    else await supFetch('POST', '/rest/v1/votes', { gender: g, voter_id: did });
+  } else {
+    if (my) await supFetch('DELETE', '/rest/v1/votes?voter_id=eq.' + encodeURIComponent(did));
+  }
+  await refreshTally();
 }
 
 async function cv(g) {
@@ -417,26 +403,13 @@ async function chVote() {
 }
 
 async function restoreVote() {
-  // Apply local vote immediately
   var lv = getLocalVote();
   if (lv) { applyVoteUI(lv); }
-
-  // Try Supabase for cross-device sync
-  if (!await ensureSB()) return;
   var my = await fetchMyVote();
-  if (my && my !== lv) {
-    localVote(my);
-  } else if (!my && lv) {
-    syncVoteToSB(lv);
-  }
+  if (my && my !== lv) { localVote(my); }
+  else if (!my && lv) { syncVoteToSB(lv); }
   await refreshTally();
-
-  // Real-time subscription
-  try {
-    sb.channel('vc')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'votes' }, function() { refreshTally(); })
-      .subscribe();
-  } catch (e) {}
+  setInterval(refreshTally, 5000);
 }
 
 // ═══════════════════════════════════════════════
@@ -458,15 +431,11 @@ async function showReveal() {
   document.getElementById('chg').style.display = 'none';
   document.querySelector('.q').innerHTML = '\u{1F3C6} Voting is closed! \u{1F3C6}';
 
+  var data = await supFetch('GET', '/rest/v1/votes?select=gender');
   var b = 0, g = 0;
-  if (sb) {
-    try {
-      var res = await sb.from('votes').select('gender');
-      if (res.data) {
-        b = res.data.filter(function(v) { return v.gender === 'boy'; }).length;
-        g = res.data.filter(function(v) { return v.gender === 'girl'; }).length;
-      }
-    } catch (e) {}
+  if (data) {
+    b = data.filter(function(v) { return v.gender === 'boy'; }).length;
+    g = data.filter(function(v) { return v.gender === 'girl'; }).length;
   }
 
   var t = b + g;
