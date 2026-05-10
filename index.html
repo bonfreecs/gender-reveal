@@ -127,7 +127,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <div class="box">
     <h1>Who's Coming?</h1>
     <p class="sub">&#x1F497; A little miracle is on the way &#x1F497;</p>
-<p style="font-size:.78rem;color:#b39ddb;margin-top:-20px;margin-bottom:24px">Countdown ends 6:05 PM PHT</p>
+<p style="font-size:.78rem;color:#b39ddb;margin-top:-20px;margin-bottom:24px">Countdown ends 6:30 PM PHT</p>
     <div class="cd">
       <div class="cd-item"><span class="cd-num" id="d">00</span><span class="cd-lbl">Days</span></div>
       <div class="cd-item"><span class="cd-num" id="h">00</span><span class="cd-lbl">Hours</span></div>
@@ -148,7 +148,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     <div class="cd-item"><span class="cd-num" id="m2">00</span><span class="cd-lbl">Minutes</span></div>
     <div class="cd-item"><span class="cd-num" id="s2">00</span><span class="cd-lbl">Seconds</span></div>
   </div>
-  <p style="font-size:.78rem;color:#b39ddb;margin-bottom:18px">Countdown ends 6:05 PM PHT</p>
+  <p style="font-size:.78rem;color:#b39ddb;margin-bottom:18px">Countdown ends 6:30 PM PHT</p>
 
   <div class="pick-badge" id="pickBadge">
     <span class="pick-icon" id="pickIcon">&#x1F466;</span>
@@ -211,6 +211,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     </div>
     <p class="rev-total" id="revTot">Total votes: 0</p>
     <div class="rev-badge" id="winner">&#x1F31F;</div>
+    <button onclick="closeReveal()" style="margin-top:24px;padding:8px 28px;border-radius:40px;border:none;background:rgba(255,255,255,.6);color:#7e57c2;font-weight:700;cursor:pointer;font-size:.9rem">&#x2190; Dismiss &amp; Continue Testing</button>
   </div>
 </div>
 
@@ -218,7 +219,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 // ═══════════════════════════════════════════════
 // COUNTDOWN (FIRST - no dependencies)
 // ═══════════════════════════════════════════════
-const DUE = '2026-05-10T18:05:00+08:00';
+const DUE = '2026-05-10T18:30:00+08:00';
 let revealed = false;
 
 function updateCD() {
@@ -474,6 +475,11 @@ async function showReveal() {
     setTimeout(function() { launchConfetti('boy'); }, 400);
     setTimeout(function() { launchConfetti('girl'); }, 700);
   }, 2500);
+}
+
+function closeReveal() {
+  document.getElementById('rev').classList.remove('show');
+  document.getElementById('rev').style.display = 'none';
 }
 
 // ═══════════════════════════════════════════════
