@@ -48,6 +48,10 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 .card-girl .vb{background:#e91e63;color:#fff}
 .card.voted .vb{opacity:1}
 .card.disabled{opacity:.5;cursor:default;transform:none!important;box-shadow:none!important;border-color:transparent!important}
+.pick-badge{display:none;align-items:center;justify-content:center;gap:8px;padding:10px 22px;border-radius:40px;background:rgba(255,255,255,.7);box-shadow:0 4px 16px rgba(0,0,0,.06);margin-bottom:16px;font-weight:700;font-size:1.05rem;animation:pop .4s ease-out}
+.pick-badge.show{display:inline-flex}
+@keyframes pop{0%{transform:scale(0);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+.pick-icon{font-size:1.4rem}
 .res{margin-top:18px;padding:12px;border-radius:20px;font-size:1.05rem;font-weight:700;opacity:0;transform:translateY(10px);transition:all .4s}
 .res.show{opacity:1;transform:translateY(0)}
 .res-boy{background:#e3f2fd;color:#0d47a1}
@@ -139,6 +143,11 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     <div class="cd-item"><span class="cd-num" id="h2">00</span><span class="cd-lbl">Hours</span></div>
     <div class="cd-item"><span class="cd-num" id="m2">00</span><span class="cd-lbl">Minutes</span></div>
     <div class="cd-item"><span class="cd-num" id="s2">00</span><span class="cd-lbl">Seconds</span></div>
+  </div>
+
+  <div class="pick-badge" id="pickBadge">
+    <span class="pick-icon" id="pickIcon">&#x1F466;</span>
+    <span class="pick-text" id="pickText">Your pick: Boy</span>
   </div>
 
   <p class="q">&#x1F3AB; Cast Your Vote &#x1F3AB;</p>
@@ -334,6 +343,16 @@ async function fetchMyVote() {
   } catch (e) { return null; }
 }
 
+function showPickBadge(g) {
+  var b = document.getElementById('pickBadge');
+  var i = document.getElementById('pickIcon');
+  var t = document.getElementById('pickText');
+  if (!g) { b.classList.remove('show'); return; }
+  i.textContent = g === 'boy' ? '\u{1F466}' : '\u{1F467}';
+  t.textContent = g === 'boy' ? 'Your pick: Boy' : 'Your pick: Girl';
+  b.classList.add('show');
+}
+
 async function cv(g) {
   if (!await ensureSB()) return;
   var my = await fetchMyVote();
@@ -356,6 +375,7 @@ async function cv(g) {
     ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
     : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
   document.getElementById('chg').classList.add('show');
+  showPickBadge(g);
 
   launchConfetti(g);
   await refreshTally();
@@ -370,6 +390,7 @@ async function chVote() {
   document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
   document.getElementById('res').className = 'res';
   document.getElementById('chg').classList.remove('show');
+  showPickBadge(null);
   await refreshTally();
 }
 
@@ -386,6 +407,7 @@ async function restoreVote() {
       ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
       : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
     document.getElementById('chg').classList.add('show');
+    showPickBadge(my);
   }
   await refreshTally();
 
