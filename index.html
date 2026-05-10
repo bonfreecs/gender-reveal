@@ -283,13 +283,13 @@ async function supFetch(method, path, body) {
   try {
     var res = await fetch(SUP_URL + path, {
       method: method,
-      headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY, 'Content-Type': 'application/json' },
+      headers: { 'apikey': SUP_KEY, 'Authorization': 'Bearer ' + SUP_KEY, 'Content-Type': 'application/json', 'Accept': 'application/json' },
       body: body ? JSON.stringify(body) : null
     });
-    if (!res.ok) { var txt = await res.text(); console.warn('Supabase error', method, path, res.status, txt); return null; }
+    if (!res.ok) return null;
     if (method === 'GET') return await res.json();
     return true;
-  } catch (e) { console.warn('Supabase fetch failed', e); return null; }
+  } catch (e) { return null; }
 }
 
 // Device ID
@@ -317,16 +317,20 @@ function renderTally(b, g) {
 }
 
 async function refreshTally() {
-  var data = await supFetch('GET', '/rest/v1/votes?select=gender');
-  if (!data) return;
-  var b = data.filter(function(v) { return v.gender === 'boy'; }).length;
-  var g = data.filter(function(v) { return v.gender === 'girl'; }).length;
-  renderTally(b, g);
+  var data = await supFetch('GET', '/rest/v1/votes?select=boy,girl');
+  if (!data || !data.length) return;
+  renderTally(data[0].boy, data[0].girl);
 }
 
 async function fetchMyVote() {
-  var data = await supFetch('GET', '/rest/v1/votes?select=gender&voter_id=eq.' + encodeURIComponent(did) + '&limit=1');
-  return (data && data.length > 0) ? data[0].gender : null;
+  var data = await supFetch('GET', '/rest/v1/votes?select=voters');
+  if (!data || !data.length) return null;
+  var voters = data[0].voters || [];
+  for (var i = 0; i < voters.length; i++) {
+    var parts = String(voters[i]).split(':');
+    if (parts[0] === did) return parts[1] || null;
+  }
+  return null;
 }
 
 function showPickBadge(g) {
@@ -379,14 +383,32 @@ function getLocalVote() {
 }
 
 async function syncVoteToSB(g) {
-  var my = await fetchMyVote();
-  if (my === g) return;
-  if (g) {
-    if (my) await supFetch('PATCH', '/rest/v1/votes?voter_id=eq.' + encodeURIComponent(did), { gender: g });
-    else await supFetch('POST', '/rest/v1/votes', { gender: g, voter_id: did });
-  } else {
-    if (my) await supFetch('DELETE', '/rest/v1/votes?voter_id=eq.' + encodeURIComponent(did));
+  var data = await supFetch('GET', '/rest/v1/votes?select=boy,girl,voters');
+  if (!data || !data.length) return;
+  var row = data[0];
+  var voters = row.voters || [];
+  var boy = row.boy, girl = row.girl;
+  var oldGender = null;
+  var newVoters = [];
+
+  for (var i = 0; i < voters.length; i++) {
+    var parts = String(voters[i]).split(':');
+    if (parts[0] === did) {
+      oldGender = parts[1];
+      if (g) newVoters.push(did + ':' + g);
+    } else {
+      newVoters.push(voters[i]);
+    }
   }
+  if (!oldGender && g) newVoters.push(did + ':' + g);
+
+  if (oldGender === 'boy') boy--;
+  else if (oldGender === 'girl') girl--;
+  if (g === 'boy') boy++;
+  else if (g === 'girl') girl++;
+  if (boy < 0) boy = 0; if (girl < 0) girl = 0;
+
+  await supFetch('PATCH', '/rest/v1/votes?id=eq.1', { boy: boy, girl: girl, voters: newVoters });
   await refreshTally();
 }
 
@@ -433,11 +455,11 @@ async function showReveal() {
   document.getElementById('chg').style.display = 'none';
   document.querySelector('.q').innerHTML = '\u{1F3C6} Voting is closed! \u{1F3C6}';
 
-  var data = await supFetch('GET', '/rest/v1/votes?select=gender');
+  var data = await supFetch('GET', '/rest/v1/votes?select=boy,girl');
   var b = 0, g = 0;
-  if (data) {
-    b = data.filter(function(v) { return v.gender === 'boy'; }).length;
-    g = data.filter(function(v) { return v.gender === 'girl'; }).length;
+  if (data && data.length) {
+    b = data[0].boy || 0;
+    g = data[0].girl || 0;
   }
 
   var t = b + g;
