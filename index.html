@@ -69,7 +69,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 #cc{position:fixed;inset:0;pointer-events:none;z-index:100}
 .ft{margin-top:26px;font-size:.72rem;color:#b39ddb}
 
-/* Tabulation Reveal Overlay */
+/* Reveal Overlay */
 .reveal{
   position:fixed;inset:0;z-index:300;
   display:flex;flex-direction:column;justify-content:center;align-items:center;
@@ -201,187 +201,344 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 </div>
 
 <script>
-// ── Floating Elements ──
-(function(){
-  const c=document.getElementById('fl'),e=['&#x1F490;','&#x1F497;','&#x2B50;','&#x2601;','&#x1F338;','&#x1F31F;','&#x1F308;'];
-  for(let i=0;i<20;i++){const el=document.createElement('span');el.className='flt';el.innerHTML=e[i%e.length];el.style.left=Math.random()*100+'%';el.style.fontSize=(1+Math.random()*1.6)+'rem';el.style.animationDuration=(14+Math.random()*20)+'s';el.style.animationDelay=Math.random()*20+'s';c.appendChild(el)}
+// ═══════════════════════════════════════════════
+// COUNTDOWN (FIRST - no dependencies)
+// ═══════════════════════════════════════════════
+const DUE = '2026-05-10T20:00:00+08:00';
+let revealed = false;
+
+function updateCD() {
+  const now = Date.now();
+  const target = new Date(DUE).getTime();
+  let diff = target - now;
+  if (diff < 0) diff = 0;
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  const pad = (n) => String(n).padStart(2, '0');
+
+  document.getElementById('d').textContent = pad(days);
+  document.getElementById('h').textContent = pad(hours);
+  document.getElementById('m').textContent = pad(mins);
+  document.getElementById('s').textContent = pad(secs);
+  document.getElementById('d2').textContent = pad(days);
+  document.getElementById('h2').textContent = pad(hours);
+  document.getElementById('m2').textContent = pad(mins);
+  document.getElementById('s2').textContent = pad(secs);
+
+  // Check reveal at 5 minutes (300000ms)
+  if (diff > 0 && diff <= 300000 && !revealed) {
+    revealed = true;
+    showReveal();
+  }
+}
+
+updateCD();
+setInterval(updateCD, 500);
+
+// ═══════════════════════════════════════════════
+// FLOATING ELEMENTS
+// ═══════════════════════════════════════════════
+(function() {
+  const c = document.getElementById('fl');
+  const e = ['\u{1F490}', '\u{1F497}', '\u{2B50}', '\u{2601}', '\u{1F338}', '\u{1F31F}', '\u{1F308}'];
+  for (let i = 0; i < 20; i++) {
+    const el = document.createElement('span');
+    el.className = 'flt';
+    el.textContent = e[i % e.length];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.fontSize = (1 + Math.random() * 1.6) + 'rem';
+    el.style.animationDuration = (14 + Math.random() * 20) + 's';
+    el.style.animationDelay = Math.random() * 20 + 's';
+    c.appendChild(el);
+  }
 })();
 
-// ── Supabase (dynamic) ──
-const SUP_URL='https://vnwmzvbflwtgvxwmupms.supabase.co';
-const SUP_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZud216dmJmbHd0Z3Z4d211cG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDg3MjAsImV4cCI6MjA5MzkyNDcyMH0.V4nNsKeeU9_dVcRnlr7FU9xyWAPg3SUPeMiLUweGyuU';
-let sb=null;
+// ═══════════════════════════════════════════════
+// SUPABASE (dynamic load)
+// ═══════════════════════════════════════════════
+const SUP_URL = 'https://vnwmzvbflwtgvxwmupms.supabase.co';
+const SUP_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZud216dmJmbHd0Z3Z4d211cG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDg3MjAsImV4cCI6MjA5MzkyNDcyMH0.V4nNsKeeU9_dVcRnlr7FU9xyWAPg3SUPeMiLUweGyuU';
+let sb = null;
 
-function loadSupabase(){
-  return new Promise((res,rej)=>{
-    if(typeof self.supabase!=='undefined'){sb=self.supabase.createClient(SUP_URL,SUP_KEY);res(true);return}
-    const s=document.createElement('script');
-    s.src='https://unpkg.com/@supabase/supabase-js@2';
-    s.onload=()=>{sb=self.supabase.createClient(SUP_URL,SUP_KEY);res(true)};
-    s.onerror=()=>rej('Supabase CDN failed');
+function loadSB() {
+  return new Promise(function(resolve) {
+    if (typeof self.supabase !== 'undefined') {
+      sb = self.supabase.createClient(SUP_URL, SUP_KEY);
+      resolve(true);
+      return;
+    }
+    var s = document.createElement('script');
+    s.src = 'https://unpkg.com/@supabase/supabase-js@2';
+    s.onload = function() {
+      sb = self.supabase.createClient(SUP_URL, SUP_KEY);
+      resolve(true);
+    };
+    s.onerror = function() {
+      console.warn('Supabase load failed');
+      resolve(false);
+    };
     document.head.appendChild(s);
   });
 }
 
 // Device ID
-const VID='gv_id';
-function gid(){
-  let id=localStorage.getItem(VID);
-  if(!id){try{id=crypto.randomUUID()}catch(e){}if(!id)id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(VID,id)}
-  return id;
-}
-const did=gid();
-
-// ── Voting functions ──
-async function ensureSB(){
-  if(sb)return true;
-  try{return await loadSupabase()}catch(e){console.warn('Supabase not available');return false}
+var did = localStorage.getItem('gv_id');
+if (!did) {
+  try { did = crypto.randomUUID(); } catch (e) {}
+  if (!did) did = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);
+  localStorage.setItem('gv_id', did);
 }
 
-async function fetchTally(){
-  if(!sb)return;
-  try{
-    const{data}=await sb.from('votes').select('gender');
-    if(!data)return;
-    const b=data.filter(v=>v.gender==='boy').length,g=data.filter(v=>v.gender==='girl').length;
-    applyTally(b,g);
-  }catch(e){}
+// Tally display
+function renderTally(b, g) {
+  var t = b + g;
+  var bp = t > 0 ? Math.round(b / t * 100) : 0;
+  var gp = t > 0 ? Math.round(g / t * 100) : 0;
+  var sec = document.getElementById('tal');
+  if (!sec.classList.contains('show')) {
+    setTimeout(function() { sec.classList.add('show'); }, 100);
+  }
+  document.getElementById('bb').style.width = bp + '%';
+  document.getElementById('gb').style.width = gp + '%';
+  document.getElementById('bs').textContent = b + ' (' + bp + '%)';
+  document.getElementById('gs').textContent = g + ' (' + gp + '%)';
+  document.getElementById('tot').textContent = 'Total votes: ' + t;
 }
 
-async function fetchMyVote(){
-  if(!sb)return null;
-  try{const{data}=await sb.from('votes').select('gender').eq('voter_id',did).maybeSingle();return data?data.gender:null}catch(e){return null}
+async function refreshTally() {
+  if (!sb) return;
+  try {
+    var res = await sb.from('votes').select('gender');
+    if (!res.data) return;
+    var b = res.data.filter(function(v) { return v.gender === 'boy'; }).length;
+    var g = res.data.filter(function(v) { return v.gender === 'girl'; }).length;
+    renderTally(b, g);
+  } catch (e) {}
 }
 
-async function cv(g){
-  if(!(await ensureSB()))return;
-  const my=await fetchMyVote();
-  if(my===g)return;
-  if(my)await sb.from('votes').update({gender:g}).eq('voter_id',did);
-  else await sb.from('votes').insert({gender:g,voter_id:did});
-  applyUI(g);launchConfetti(g);await fetchTally();
+// Vote functions
+async function ensureSB() {
+  if (sb) return true;
+  return await loadSB();
 }
 
-async function chVote(){
-  if(!sb)return;
-  const my=await fetchMyVote();if(!my)return;
-  await sb.from('votes').delete().eq('voter_id',did);
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('voted','disabled'));
-  document.getElementById('res').className='res';document.getElementById('chg').classList.remove('show');
-  await fetchTally();
+async function fetchMyVote() {
+  if (!sb) return null;
+  try {
+    var res = await sb.from('votes').select('gender').eq('voter_id', did).maybeSingle();
+    return res.data ? res.data.gender : null;
+  } catch (e) { return null; }
 }
 
-function applyUI(g){
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('voted','disabled'));
-  document.querySelector('.card-'+g).classList.add('voted');
-  document.querySelector('.card-'+(g==='boy'?'girl':'boy')).classList.add('disabled');
-  const r=document.getElementById('res');r.className='res show res-'+g;
-  r.innerHTML=g==='boy'?'&#x2705; You voted <strong>BOY</strong>! &#x1F466; &#x1F436; &#x1F3C8;':'&#x2705; You voted <strong>GIRL</strong>! &#x1F467; &#x1F484; &#x1F380;';
+async function cv(g) {
+  if (!await ensureSB()) return;
+  var my = await fetchMyVote();
+  if (my === g) return;
+
+  if (my) {
+    await sb.from('votes').update({ gender: g }).eq('voter_id', did);
+  } else {
+    await sb.from('votes').insert({ gender: g, voter_id: did });
+  }
+
+  // UI
+  document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
+  document.querySelector('.card-' + g).classList.add('voted');
+  document.querySelector('.card-' + (g === 'boy' ? 'girl' : 'boy')).classList.add('disabled');
+
+  var r = document.getElementById('res');
+  r.className = 'res show res-' + g;
+  r.innerHTML = g === 'boy'
+    ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
+    : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
   document.getElementById('chg').classList.add('show');
+
+  launchConfetti(g);
+  await refreshTally();
 }
 
-function applyTally(b,g){
-  const t=b+g,bp=t>0?Math.round(b/t*100):0,gp=t>0?Math.round(g/t*100):0;
-  const sec=document.getElementById('tal');
-  if(!sec.classList.contains('show'))setTimeout(()=>sec.classList.add('show'),100);
-  document.getElementById('bb').style.width=bp+'%';
-  document.getElementById('gb').style.width=gp+'%';
-  document.getElementById('bs').textContent=b+' ('+bp+'%)';
-  document.getElementById('gs').textContent=g+' ('+gp+'%)';
-  document.getElementById('tot').textContent='Total votes: '+t;
+async function chVote() {
+  if (!sb) return;
+  var my = await fetchMyVote();
+  if (!my) return;
+  await sb.from('votes').delete().eq('voter_id', did);
+
+  document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
+  document.getElementById('res').className = 'res';
+  document.getElementById('chg').classList.remove('show');
+  await refreshTally();
 }
 
-async function restoreVote(){
-  if(!(await ensureSB()))return;
-  const my=await fetchMyVote();
-  if(my)applyUI(my);
-  await fetchTally();
-  if(sb){
-    sb.channel('vc').on('postgres_changes',{event:'*',schema:'public',table:'votes'},()=>{fetchTally()}).subscribe();
+async function restoreVote() {
+  if (!await ensureSB()) return;
+  var my = await fetchMyVote();
+  if (my) {
+    document.querySelectorAll('.card').forEach(function(c) { c.classList.remove('voted', 'disabled'); });
+    document.querySelector('.card-' + my).classList.add('voted');
+    document.querySelector('.card-' + (my === 'boy' ? 'girl' : 'boy')).classList.add('disabled');
+    var r = document.getElementById('res');
+    r.className = 'res show res-' + my;
+    r.innerHTML = my === 'boy'
+      ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
+      : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
+    document.getElementById('chg').classList.add('show');
   }
+  await refreshTally();
+
+  // Real-time subscription
+  try {
+    sb.channel('vc')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'votes' }, function() { refreshTally(); })
+      .subscribe();
+  } catch (e) {}
 }
 
-// ── Countdown + Reveal Trigger ──
-const DUE='2026-05-10T20:00:00+08:00';
-let revealed=false;
-const cdVals={d:0,h:0,m:0,s:0};
-
-function tick(){
-  const t=new Date(DUE).getTime()-Date.now();
-  cdVals.d=t>0?Math.floor(t/864e5):0;
-  cdVals.h=t>0?Math.floor((t%864e5)/36e5):0;
-  cdVals.m=t>0?Math.floor((t%36e5)/6e4):0;
-  cdVals.s=t>0?Math.floor((t%6e4)/1e3):0;
-  const p=n=>String(n).padStart(2,'0');
-  for(const k of['d','h','m','s']){document.getElementById(k).textContent=p(cdVals[k]);document.getElementById(k+'2').textContent=p(cdVals[k])}
-
-  if(t>0&&t<=300000&&!revealed){revealed=true;showReveal()}
-}
-tick();setInterval(tick,1000);
-
-// ── Reveal Tabulation ──
-async function showReveal(){
-  // Lock voting - hide cards
-  document.querySelector('.cards').style.display='none';
-  document.getElementById('res').style.display='none';
-  document.getElementById('chg').style.display='none';
-  document.querySelector('.q').innerHTML='\u{1F3C6} Voting is closed! \u{1F3C6}';
-
-  // Fetch final tally
-  let b=0,g=0;
-  if(sb){
-    try{const{data}=await sb.from('votes').select('gender');if(data){b=data.filter(v=>v.gender==='boy').length;g=data.filter(v=>v.gender==='girl').length}}catch(e){}
-  }
-  const t=b+g,bp=t>0?Math.round(b/t*100):0,gp=t>0?Math.round(g/t*100):0;
-
-  // Populate reveal
-  document.getElementById('rbCount').textContent=b;
-  document.getElementById('rgCount').textContent=g;
-  document.getElementById('rbPct').textContent=bp+'%';
-  document.getElementById('rgPct').textContent=gp+'%';
-  document.getElementById('revTot').textContent='Total votes: '+t;
-
-  // Show overlay
-  document.getElementById('rev').classList.add('show');
-
-  // Animate bars after render
-  setTimeout(()=>{
-    document.getElementById('rb').style.width=bp+'%';
-    document.getElementById('rg').style.width=gp+'%';
-  },300);
-
-  // Show winner badge
-  setTimeout(()=>{
-    const w=document.getElementById('winner');
-    if(b>g){w.className='rev-badge boy';w.innerHTML='\u{1F466} Team Boy Wins!';launchConfetti('boy')}
-    else if(g>b){w.className='rev-badge girl';w.innerHTML='\u{1F467} Team Girl Wins!';launchConfetti('girl')}
-    else{w.className='rev-badge';w.innerHTML='\u{1F91D} It\'s a Tie!';launchConfetti('boy');setTimeout(()=>launchConfetti('girl'),300)}
-    // Big celebration
-    setTimeout(()=>launchConfetti('boy'),400);
-    setTimeout(()=>launchConfetti('girl'),700);
-  },2500);
-}
-
-// ── Enter ──
-document.getElementById('eb').onclick=function(){
+// ═══════════════════════════════════════════════
+// ENTER BUTTON
+// ═══════════════════════════════════════════════
+document.getElementById('eb').onclick = function() {
   document.getElementById('sp').classList.add('hide');
-  launchConfetti('boy');setTimeout(()=>launchConfetti('girl'),300);
+  launchConfetti('boy');
+  setTimeout(function() { launchConfetti('girl'); }, 300);
   restoreVote();
 };
 
-// ── Confetti ──
-const cv=document.getElementById('cc'),cx=cv.getContext('2d');let W,H;
-function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}
-rs();addEventListener('resize',rs);
-const pt=[],CB=['#42a5f5','#64b5f6','#90caf9','#1e88e5','#1565c0'],CG=['#ec407a','#f06292','#f48fb1','#e91e63','#c62828'];
-class Ct{
-  constructor(c){this.x=Math.random()*W;this.y=-20-Math.random()*100;this.w=6+Math.random()*8;this.h=4+Math.random()*6;this.color=c[Math.floor(Math.random()*c.length)];this.vy=1.5+Math.random()*2.5;this.vx=(Math.random()-.5)*1.8;this.rot=Math.random()*360;this.rs=(Math.random()-.5)*8;this.shape=Math.random()>.5?'r':'c';this.op=.9+Math.random()*.1}
-  u(){this.y+=this.vy;this.x+=this.vx;this.rot+=this.rs;this.vy+=.04;this.vx*=.999}
-  d(ctx){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rot*Math.PI/180);ctx.globalAlpha=this.op;ctx.fillStyle=this.color;if(this.shape==='r')ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);else{ctx.beginPath();ctx.arc(0,0,this.w/2,0,Math.PI*2);ctx.fill()}ctx.restore()}
+// ═══════════════════════════════════════════════
+// REVEAL TABULATION
+// ═══════════════════════════════════════════════
+async function showReveal() {
+  document.querySelector('.cards').style.display = 'none';
+  document.getElementById('res').style.display = 'none';
+  document.getElementById('chg').style.display = 'none';
+  document.querySelector('.q').innerHTML = '\u{1F3C6} Voting is closed! \u{1F3C6}';
+
+  var b = 0, g = 0;
+  if (sb) {
+    try {
+      var res = await sb.from('votes').select('gender');
+      if (res.data) {
+        b = res.data.filter(function(v) { return v.gender === 'boy'; }).length;
+        g = res.data.filter(function(v) { return v.gender === 'girl'; }).length;
+      }
+    } catch (e) {}
+  }
+
+  var t = b + g;
+  var bp = t > 0 ? Math.round(b / t * 100) : 0;
+  var gp = t > 0 ? Math.round(g / t * 100) : 0;
+
+  document.getElementById('rbCount').textContent = b;
+  document.getElementById('rgCount').textContent = g;
+  document.getElementById('rbPct').textContent = bp + '%';
+  document.getElementById('rgPct').textContent = gp + '%';
+  document.getElementById('revTot').textContent = 'Total votes: ' + t;
+
+  document.getElementById('rev').classList.add('show');
+
+  setTimeout(function() {
+    document.getElementById('rb').style.width = bp + '%';
+    document.getElementById('rg').style.width = gp + '%';
+  }, 300);
+
+  setTimeout(function() {
+    var w = document.getElementById('winner');
+    if (b > g) {
+      w.className = 'rev-badge boy';
+      w.innerHTML = '\u{1F466} Team Boy Wins!';
+      launchConfetti('boy');
+    } else if (g > b) {
+      w.className = 'rev-badge girl';
+      w.innerHTML = '\u{1F467} Team Girl Wins!';
+      launchConfetti('girl');
+    } else {
+      w.className = 'rev-badge';
+      w.innerHTML = '\u{1F91D} It\'s a Tie!';
+      launchConfetti('boy');
+      setTimeout(function() { launchConfetti('girl'); }, 300);
+    }
+    setTimeout(function() { launchConfetti('boy'); }, 400);
+    setTimeout(function() { launchConfetti('girl'); }, 700);
+  }, 2500);
 }
-let aid=null;
-function launchConfetti(g){const c=g==='boy'?CB:CG;for(let i=0;i<80;i++)pt.push(new Ct(c));if(!aid)anim()}
-function anim(){cx.clearRect(0,0,W,H);for(let i=pt.length-1;i>=0;i--){pt[i].u();pt[i].d(cx);if(pt[i].y>H+30||pt[i].x<-50||pt[i].x>W+50)pt.splice(i,1)}if(pt.length>0)aid=requestAnimationFrame(anim);else{aid=null;cx.clearRect(0,0,W,H)}}
+
+// ═══════════════════════════════════════════════
+// CONFETTI
+// ═══════════════════════════════════════════════
+var cv = document.getElementById('cc');
+var cx = cv.getContext('2d');
+var W, H;
+
+function rs() {
+  W = cv.width = window.innerWidth;
+  H = cv.height = window.innerHeight;
+}
+rs();
+window.addEventListener('resize', rs);
+
+var particles = [];
+var CB = ['#42a5f5', '#64b5f6', '#90caf9', '#1e88e5', '#1565c0'];
+var CG = ['#ec407a', '#f06292', '#f48fb1', '#e91e63', '#c62828'];
+var animId = null;
+
+function launchConfetti(g) {
+  var colors = g === 'boy' ? CB : CG;
+  for (var i = 0; i < 80; i++) {
+    particles.push({
+      x: Math.random() * W,
+      y: -20 - Math.random() * 100,
+      w: 6 + Math.random() * 8,
+      h: 4 + Math.random() * 6,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vy: 1.5 + Math.random() * 2.5,
+      vx: (Math.random() - 0.5) * 1.8,
+      rot: Math.random() * 360,
+      rs: (Math.random() - 0.5) * 8,
+      shape: Math.random() > 0.5 ? 'r' : 'c',
+      op: 0.9 + Math.random() * 0.1
+    });
+  }
+  if (!animId) animate();
+}
+
+function animate() {
+  cx.clearRect(0, 0, W, H);
+  for (var i = particles.length - 1; i >= 0; i--) {
+    var p = particles[i];
+    p.y += p.vy;
+    p.x += p.vx;
+    p.rot += p.rs;
+    p.vy += 0.04;
+    p.vx *= 0.999;
+
+    cx.save();
+    cx.translate(p.x, p.y);
+    cx.rotate(p.rot * Math.PI / 180);
+    cx.globalAlpha = p.op;
+    cx.fillStyle = p.color;
+    if (p.shape === 'r') {
+      cx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    } else {
+      cx.beginPath();
+      cx.arc(0, 0, p.w / 2, 0, Math.PI * 2);
+      cx.fill();
+    }
+    cx.restore();
+
+    if (p.y > H + 30 || p.x < -50 || p.x > W + 50) {
+      particles.splice(i, 1);
+    }
+  }
+  if (particles.length > 0) {
+    animId = requestAnimationFrame(animate);
+  } else {
+    animId = null;
+    cx.clearRect(0, 0, W, H);
+  }
+}
 </script>
 </body>
 </html>
