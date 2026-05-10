@@ -450,14 +450,14 @@ function animate() {
 // SPIN THE WHEEL
 // ═══════════════════════════════════════════════
 var wheelSegs = [
-  { label: 'Boy!', emoji: '\u{1F466}', color: '#42a5f5' },
   { label: 'Girl!', emoji: '\u{1F467}', color: '#ec407a' },
-  { label: 'Twins!', emoji: '\u{1F476}\u{1F476}', color: '#ab47bc' },
-  { label: 'Surprise!', emoji: '\u{1F389}', color: '#66bb6a' },
-  { label: 'Mystery', emoji: '\u{2753}', color: '#ffa726' },
-  { label: 'Rainbow', emoji: '\u{1F308}', color: '#26c6da' },
-  { label: 'Blue', emoji: '\u{1F535}', color: '#5c6bc0' },
-  { label: 'Pink', emoji: '\u{1F497}', color: '#ef5350' }
+  { label: 'Boy!', emoji: '\u{1F466}', color: '#42a5f5' },
+  { label: 'Girl!', emoji: '\u{1F467}', color: '#f06292' },
+  { label: 'Boy!', emoji: '\u{1F466}', color: '#64b5f6' },
+  { label: 'Girl!', emoji: '\u{1F467}', color: '#ec407a' },
+  { label: 'Boy!', emoji: '\u{1F466}', color: '#42a5f5' },
+  { label: 'Girl!', emoji: '\u{1F467}', color: '#f06292' },
+  { label: 'Boy!', emoji: '\u{1F466}', color: '#64b5f6' }
 ];
 var wheelAngle = 0;
 var wheelSpinning = false;
@@ -543,7 +543,7 @@ function spinWheel() {
 
   var spins = 5 + Math.random() * 5;
   var aStep = 2 * Math.PI / wheelSegs.length;
-  var segCenter = (1 + 0.5) * aStep;
+  var segCenter = (0 + 0.5) * aStep;
   var desired = ((-Math.PI / 2 - segCenter) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
   var cur = ((wheelAngle % (2 * Math.PI)) + 2 * Math.PI) % (2 * Math.PI);
   var extra = ((desired - cur) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
