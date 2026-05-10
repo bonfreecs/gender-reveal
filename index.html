@@ -6,9 +6,8 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
 <meta http-equiv="Pragma" content="no-cache" />
 <meta http-equiv="Expires" content="0" />
-<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>&#x1F476;</text></svg>">
+<link rel="icon" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAXRJREFUWEftlrFOwzAQht3fH4GJhYGBhYH/AZGJhYEViYmJibfIk8DEwP8XMEACwY0t6hS7cRIKpS2UJPKc2Pd9d+cr8J8C/I/gh/R7OBw+TSaTu/F4/DidTh8AHMp7D+BVSp0DyADmUsqXoihiKeVZSmlTSnkF4AGA3cnkGMA8APcAvtaSiqK4bjabb81m86Pb7V4AGLXb7Uur9ReAMs/zW+u2mwCuSAIAYRi+BkEQOufyVqv1EkXRN4DHfr//FgTBM4DTLMsA4AjAE+tHkiQMAH3jG4Dk+zMEgH6tVqsXABoAsN1un2u1Gpvx0Wq1TgGQbwBKYzabnXAak+Xz+VFKmfV6PUopr9vt9jjP8+t6vX5PCrTb7SGA+w0Cq9XqME1Ta4mdJEkuer3eeyGE2e12jymAZrP5AKA1n8+PmK/Rajab90JqDQAbx+Pxou/7B+bG6/UaYA+r1eo6TdMxgD2A2+VyeQ3gToiOAJaUZ4vF4izP828AfwDFXNK32U4j0AAAAABJRU5ErkJggg==">
 <title>Who's Coming? — Gender Reveal</title>
-<script>if(window.location.search.indexOf('v=3')<0){window.location.replace(window.location.pathname+window.location.hash+'?v=3')}</script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{
@@ -173,7 +172,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <button class="chg" id="chg" onclick="chVote()">&#x2190; Change My Vote</button>
 
   <p class="ft">Made with &#x1F497; for the big surprise</p>
-  <button class="wb" onclick="openWheel()">&#x1F3AF; Reveal the Gender &#x1F3AF;</button>
+  <button class="wb" id="rwb">&#x1F3AF; Reveal the Gender &#x1F3AF;</button>
 </div>
 
 <!-- SPIN THE WHEEL MODAL -->
@@ -187,7 +186,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     </div>
     <button class="ws" id="wsBtn" onclick="spinWheel()">&#x1F504; SPIN!</button>
     <div class="wr" id="wr"></div>
-    <button onclick="closeWheel()">&#x2716; Close</button>
+    <button id="closeWheelBtn">&#x2716; Close</button>
   </div>
 </div>
 
@@ -204,6 +203,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 
 
 <script>
+console.log('gender reveal script loaded');
 // ═══════════════════════════════════════════════
 // COUNTDOWN (FIRST - no dependencies)
 // ═══════════════════════════════════════════════
@@ -401,6 +401,9 @@ document.getElementById('eb').onclick = function() {
   restoreVote();
 };
 
+document.getElementById('rwb').onclick = openWheel;
+document.getElementById('closeWheelBtn').onclick = closeWheel;
+
 // ═══════════════════════════════════════════════
 // CONFETTI
 // ═══════════════════════════════════════════════
@@ -552,7 +555,9 @@ function drawWheel(angle) {
 }
 
 function openWheel() {
-  document.getElementById('wm').classList.add('show');
+  var wm = document.getElementById('wm');
+  if (!wm) { console.error('wheel modal not found'); return; }
+  wm.classList.add('show');
   document.getElementById('wr').textContent = '';
   document.getElementById('wsBtn').disabled = false;
   document.getElementById('wsBtn').textContent = '\u{1F504} SPIN!';
