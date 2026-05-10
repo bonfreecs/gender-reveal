@@ -5,164 +5,118 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Who's Coming? — Gender Reveal</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-  min-height: 100vh;
-  font-family: 'Segoe UI', 'Arial', sans-serif;
-  background: linear-gradient(135deg, #fce4ec, #e8f5fe, #f3e5f5);
-  background-size: 400% 400%;
-  animation: bgShift 12s ease infinite;
-  display: flex; justify-content: center; align-items: center;
-  overflow-x: hidden;
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  min-height:100vh;font-family:'Segoe UI',Arial,sans-serif;
+  background:linear-gradient(135deg,#fce4ec,#e8f5fe,#f3e5f5);
+  background-size:400% 400%;animation:bgs 12s ease infinite;
+  display:flex;justify-content:center;align-items:center;overflow-x:hidden;
 }
-@keyframes bgShift {
-  0%{background-position:0% 50%}
-  50%{background-position:100% 50%}
-  100%{background-position:0% 50%}
+@keyframes bgs{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+.floats{position:fixed;inset:0;pointer-events:none;z-index:0}
+.flt{position:absolute;font-size:1.4rem;opacity:.3;animation:up linear infinite}
+@keyframes up{0%{transform:translateY(100vh)rotate(0deg);opacity:0}10%{opacity:.3}90%{opacity:.3}100%{transform:translateY(-10vh)rotate(360deg);opacity:0}}
+.splash{
+  position:fixed;inset:0;z-index:200;display:flex;flex-direction:column;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,#fce4ec,#e8f5fe,#f3e5f5);background-size:400% 400%;animation:bgs 12s ease infinite;
+  transition:opacity .8s,transform .8s;padding:20px;
 }
-.floats { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
-.flt {
-  position: absolute; font-size: 1.4rem; opacity: .3;
-  animation: up linear infinite;
+.splash.hide{opacity:0;transform:scale(1.05);pointer-events:none}
+.box{max-width:620px;width:100%;background:rgba(255,255,255,.6);backdrop-filter:blur(16px);border-radius:48px;padding:48px 32px 40px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.08);animation:in 1s ease-out}
+@keyframes in{0%{opacity:0;transform:translateY(40px)scale(.95)}100%{opacity:1;transform:translateY(0)scale(1)}}
+h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.sub{font-size:1.05rem;color:#7e57c2;font-weight:600;margin-bottom:28px}
+.cd{display:flex;justify-content:center;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.cd-item{background:#fff;border-radius:20px;padding:14px 16px;min-width:76px;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+.cd-num{display:block;font-size:2.2rem;font-weight:800;color:#5c6bc0;line-height:1}
+.cd-lbl{display:block;font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:#999;font-weight:700;margin-top:4px}
+.btn{display:inline-block;padding:12px 40px;border-radius:40px;border:none;background:linear-gradient(135deg,#ec407a,#ab47bc);color:#fff;font-size:1.05rem;font-weight:700;cursor:pointer;transition:transform .3s,box-shadow .3s;box-shadow:0 8px 24px rgba(171,71,188,.3)}
+.btn:hover{transform:translateY(-3px)scale(1.03);box-shadow:0 12px 32px rgba(171,71,188,.4)}
+.main{position:relative;z-index:1;width:92%;max-width:720px;background:rgba(255,255,255,.6);backdrop-filter:blur(16px);border-radius:40px;padding:36px 28px 44px;text-align:center;box-shadow:0 20px 50px rgba(0,0,0,.08)}
+.q{font-size:1.5rem;font-weight:800;color:#6a1b9a;margin-bottom:22px}
+.cards{display:flex;justify-content:center;gap:22px;flex-wrap:wrap}
+.card{width:180px;padding:26px 14px 22px;border-radius:28px;cursor:pointer;transition:all .3s;border:2px solid transparent;user-select:none}
+.card-boy{background:#e3f2fd;color:#1565c0}
+.card-boy:hover,.card-boy.voted{border-color:#42a5f5;transform:translateY(-6px)scale(1.02);box-shadow:0 12px 32px rgba(33,150,243,.2)}
+.card-girl{background:#fce4ec;color:#c62828}
+.card-girl:hover,.card-girl.voted{border-color:#ec407a;transform:translateY(-6px)scale(1.02);box-shadow:0 12px 32px rgba(233,30,99,.2)}
+.card-icon{font-size:3.2rem;display:block;margin-bottom:6px}
+.card-lbl{font-size:1.2rem;font-weight:800;display:block}
+.card-emoji{font-size:.95rem}
+.vb{display:inline-block;margin-top:8px;padding:3px 12px;border-radius:20px;font-size:.6rem;font-weight:800;text-transform:uppercase;opacity:0;transition:opacity .3s}
+.card-boy .vb{background:#1e88e5;color:#fff}
+.card-girl .vb{background:#e91e63;color:#fff}
+.card.voted .vb{opacity:1}
+.card.disabled{opacity:.5;cursor:default;transform:none!important;box-shadow:none!important;border-color:transparent!important}
+.res{margin-top:18px;padding:12px;border-radius:20px;font-size:1.05rem;font-weight:700;opacity:0;transform:translateY(10px);transition:all .4s}
+.res.show{opacity:1;transform:translateY(0)}
+.res-boy{background:#e3f2fd;color:#0d47a1}
+.res-girl{background:#fce4ec;color:#880e4f}
+.chg{margin-top:10px;padding:6px 18px;border-radius:20px;border:none;background:rgba(255,255,255,.7);color:#7e57c2;font-weight:700;cursor:pointer;opacity:0;transition:opacity .3s}
+.chg.show{opacity:1}
+.tally{margin-top:26px;padding-top:22px;border-top:2px dashed rgba(206,147,216,.3);opacity:0;transform:translateY(16px);transition:all .6s}
+.tally.show{opacity:1;transform:translateY(0)}
+.tally h3{font-size:1.15rem;color:#7e57c2;margin-bottom:4px}
+.tally p{font-size:.78rem;color:#b39ddb;margin-bottom:14px}
+.tr{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.tl{min-width:34px;font-weight:700;text-align:right}
+.tb{flex:1;height:22px;border-radius:12px;background:rgba(255,255,255,.5);overflow:hidden}
+.tbf{height:100%;border-radius:12px;width:0%;transition:width 1s}
+.tbf.boy{background:linear-gradient(90deg,#90caf9,#42a5f5)}
+.tbf.girl{background:linear-gradient(90deg,#f48fb1,#ec407a)}
+.ts{min-width:66px;font-weight:700;font-size:.82rem}
+.tt{margin-top:10px;font-size:.82rem;color:#9575cd;font-weight:700}
+#cc{position:fixed;inset:0;pointer-events:none;z-index:100}
+.ft{margin-top:26px;font-size:.72rem;color:#b39ddb}
+
+/* Tabulation Reveal Overlay */
+.reveal{
+  position:fixed;inset:0;z-index:300;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  background:linear-gradient(135deg,#fce4ec,#e8f5fe,#f3e5f5);
+  background-size:400% 400%;animation:bgs 12s ease infinite;
+  opacity:0;pointer-events:none;transition:opacity 1.2s ease;padding:20px;
 }
-@keyframes up {
-  0%{transform:translateY(100vh) rotate(0deg);opacity:0}
-  10%{opacity:.3}
-  90%{opacity:.3}
-  100%{transform:translateY(-10vh) rotate(360deg);opacity:0}
-}
-.splash {
-  position: fixed; inset: 0; z-index: 200;
-  display: flex; flex-direction: column; justify-content: center; align-items: center;
-  background: linear-gradient(135deg, #fce4ec, #e8f5fe, #f3e5f5);
-  background-size: 400% 400%;
-  animation: bgShift 12s ease infinite;
-  transition: opacity .8s ease, transform .8s ease;
-  padding: 20px;
-}
-.splash.hide { opacity: 0; transform: scale(1.05); pointer-events: none; }
-.box {
-  max-width: 640px; width: 100%;
-  background: rgba(255,255,255,.6); backdrop-filter: blur(16px);
-  border-radius: 48px; padding: 50px 36px 44px; text-align: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,.08);
-  animation: in 1s ease-out;
-}
-@keyframes in {
-  0%{opacity:0;transform:translateY(40px) scale(.96)}
-  100%{opacity:1;transform:translateY(0) scale(1)}
-}
-h1 {
-  font-size: 2.8rem; margin-bottom: 4px;
-  background: linear-gradient(135deg, #ec407a, #ab47bc, #42a5f5);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.sub { font-size: 1.1rem; color: #7e57c2; font-weight: 600; margin-bottom: 30px; }
-.cd {
-  display: flex; justify-content: center; gap: 14px; margin-bottom: 30px; flex-wrap: wrap;
-}
-.cd-item {
-  background: #fff; border-radius: 20px; padding: 16px 18px; min-width: 80px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.06);
-}
-.cd-num {
-  display: block; font-size: 2.4rem; font-weight: 800; color: #5c6bc0; line-height: 1;
-}
-.cd-lbl {
-  display: block; font-size: .65rem; text-transform: uppercase; letter-spacing: 1.5px;
-  color: #999; font-weight: 700; margin-top: 4px;
-}
-.btn {
-  display: inline-block; padding: 14px 44px; border-radius: 40px; border: none;
-  background: linear-gradient(135deg, #ec407a, #ab47bc); color: #fff;
-  font-size: 1.1rem; font-weight: 700; cursor: pointer;
-  transition: transform .3s, box-shadow .3s;
-  box-shadow: 0 8px 24px rgba(171,71,188,.3);
-}
-.btn:hover { transform: translateY(-3px) scale(1.03); box-shadow: 0 12px 32px rgba(171,71,188,.4); }
-.main {
-  position: relative; z-index: 1; width: 90%; max-width: 750px;
-  background: rgba(255,255,255,.6); backdrop-filter: blur(16px);
-  border-radius: 40px; padding: 40px 32px 48px; text-align: center;
-  box-shadow: 0 20px 50px rgba(0,0,0,.08);
-}
-.q { font-size: 1.6rem; font-weight: 800; color: #6a1b9a; margin-bottom: 24px; }
-.cards { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; }
-.card {
-  width: 190px; padding: 28px 16px 24px; border-radius: 28px; cursor: pointer;
-  transition: all .3s; border: 2px solid transparent;
-  user-select: none;
-}
-.card-boy { background: #e3f2fd; color: #1565c0; }
-.card-boy:hover, .card-boy.voted { border-color: #42a5f5; transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 32px rgba(33,150,243,.2); }
-.card-girl { background: #fce4ec; color: #c62828; }
-.card-girl:hover, .card-girl.voted { border-color: #ec407a; transform: translateY(-6px) scale(1.02); box-shadow: 0 12px 32px rgba(233,30,99,.2); }
-.card-icon { font-size: 3.4rem; display: block; margin-bottom: 8px; }
-.card-lbl { font-size: 1.3rem; font-weight: 800; display: block; }
-.card-emoji { font-size: 1rem; }
-.vote-badge {
-  display: inline-block; margin-top: 8px; padding: 3px 12px; border-radius: 20px;
-  font-size: .65rem; font-weight: 800; text-transform: uppercase;
-  opacity: 0; transition: opacity .3s;
-}
-.card-boy .vote-badge { background: #1e88e5; color: #fff; }
-.card-girl .vote-badge { background: #e91e63; color: #fff; }
-.card.voted .vote-badge { opacity: 1; }
-.card.disabled { opacity: .5; cursor: default; transform: none !important; box-shadow: none !important; border-color: transparent !important; }
-.result {
-  margin-top: 20px; padding: 14px; border-radius: 20px; font-size: 1.1rem; font-weight: 700;
-  opacity: 0; transform: translateY(10px); transition: all .4s;
-}
-.result.show { opacity: 1; transform: translateY(0); }
-.result-boy { background: #e3f2fd; color: #0d47a1; }
-.result-girl { background: #fce4ec; color: #880e4f; }
-.chg {
-  margin-top: 12px; padding: 8px 20px; border-radius: 20px; border: none;
-  background: rgba(255,255,255,.7); color: #7e57c2; font-weight: 700; cursor: pointer;
-  opacity: 0; transition: opacity .3s;
-}
-.chg.show { opacity: 1; }
-.tally {
-  margin-top: 28px; padding-top: 24px; border-top: 2px dashed rgba(206,147,216,.3);
-  opacity: 0; transform: translateY(16px); transition: all .6s;
-}
-.tally.show { opacity: 1; transform: translateY(0); }
-.tally h3 { font-size: 1.2rem; color: #7e57c2; margin-bottom: 4px; }
-.tally p { font-size: .8rem; color: #b39ddb; margin-bottom: 16px; }
-.tr { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
-.tl { min-width: 36px; font-weight: 700; text-align: right; }
-.tb {
-  flex: 1; height: 24px; border-radius: 12px; background: rgba(255,255,255,.5);
-  overflow: hidden;
-}
-.tbf { height: 100%; border-radius: 12px; width: 0%; transition: width 1s; }
-.tbf.boy { background: linear-gradient(90deg, #90caf9, #42a5f5); }
-.tbf.girl { background: linear-gradient(90deg, #f48fb1, #ec407a); }
-.ts { min-width: 70px; font-weight: 700; font-size: .85rem; }
-.tt { margin-top: 12px; font-size: .85rem; color: #9575cd; font-weight: 700; }
-#confetti-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 100; }
-.ft { margin-top: 28px; font-size: .75rem; color: #b39ddb; }
-@media (max-width:600px) {
-  .box { padding: 32px 20px 28px; }
-  h1 { font-size: 2rem; }
-  .cd-item { min-width: 60px; padding: 12px 10px; }
-  .cd-num { font-size: 1.8rem; }
-  .card { width: 145px; padding: 20px 12px 18px; }
-  .card-icon { font-size: 2.6rem; }
-  .main { padding: 28px 16px 36px; }
-  .q { font-size: 1.3rem; }
+.reveal.show{opacity:1;pointer-events:auto}
+.rev-box{max-width:620px;width:100%;background:rgba(255,255,255,.7);backdrop-filter:blur(20px);border-radius:56px;padding:50px 36px 44px;text-align:center;box-shadow:0 30px 70px rgba(0,0,0,.12);transform:scale(.9);transition:transform 1s cubic-bezier(.34,1.56,.64,1)}
+.reveal.show .rev-box{transform:scale(1)}
+.rev-title{font-size:2.4rem;font-weight:800;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.rev-sub{font-size:1rem;color:#7e57c2;font-weight:600;margin-bottom:28px}
+.rev-bar{margin-bottom:16px}
+.rev-bar-label{font-size:1.1rem;font-weight:700;margin-bottom:6px}
+.rev-bar-label span{font-weight:400;color:#888}
+.rev-track{height:36px;border-radius:18px;background:rgba(255,255,255,.5);overflow:hidden;position:relative}
+.rev-fill{height:100%;border-radius:18px;width:0%;transition:width 2s cubic-bezier(.34,1.56,.64,1)}
+.rev-fill.blue{background:linear-gradient(90deg,#64b5f6,#1e88e5)}
+.rev-fill.pink{background:linear-gradient(90deg,#f06292,#e91e63)}
+.rev-stat{font-size:.9rem;color:#666;margin-top:4px;font-weight:600}
+.rev-total{font-size:1.1rem;color:#7e57c2;font-weight:700;margin-top:20px}
+.rev-badge{display:inline-block;margin-top:24px;padding:10px 36px;border-radius:40px;font-size:1.3rem;font-weight:800;letter-spacing:1px}
+.rev-badge.boy{background:linear-gradient(135deg,#bbdefb,#42a5f5);color:#0d47a1}
+.rev-badge.girl{background:linear-gradient(135deg,#f8bbd0,#ec407a);color:#880e4f}
+
+@media(max-width:600px){
+  .box{padding:32px 18px 28px}
+  h1{font-size:2rem}
+  .cd-item{min-width:58px;padding:10px 8px}
+  .cd-num{font-size:1.6rem}
+  .card{width:140px;padding:18px 10px 16px}
+  .card-icon{font-size:2.4rem}
+  .main{padding:24px 14px 32px}
+  .q{font-size:1.2rem}
+  .rev-box{padding:36px 20px 32px;border-radius:40px}
+  .rev-title{font-size:1.8rem}
+  .rev-track{height:28px}
 }
 </style>
 </head>
 <body>
 
-<div class="floats" id="floats"></div>
-<canvas id="confetti-canvas"></canvas>
+<div class="floats" id="fl"></div>
+<canvas id="cc"></canvas>
 
 <!-- SPLASH -->
-<div class="splash" id="splash">
+<div class="splash" id="sp">
   <div class="box">
     <h1>Who's Coming?</h1>
     <p class="sub">&#x1F497; A little miracle is on the way &#x1F497;</p>
@@ -172,7 +126,7 @@ h1 {
       <div class="cd-item"><span class="cd-num" id="m">00</span><span class="cd-lbl">Minutes</span></div>
       <div class="cd-item"><span class="cd-num" id="s">00</span><span class="cd-lbl">Seconds</span></div>
     </div>
-    <button class="btn" id="enterBtn">&#x2728; Enter the Celebration &#x2728;</button>
+    <button class="btn" id="eb">&#x2728; Enter the Celebration &#x2728;</button>
   </div>
 </div>
 
@@ -180,7 +134,7 @@ h1 {
 <div class="main">
   <h1>Who's Coming?</h1>
   <p class="sub">&#x2728; A little miracle on the way &#x1F497;</p>
-  <div class="cd" style="margin-bottom:20px">
+  <div class="cd" style="margin-bottom:18px">
     <div class="cd-item"><span class="cd-num" id="d2">00</span><span class="cd-lbl">Days</span></div>
     <div class="cd-item"><span class="cd-num" id="h2">00</span><span class="cd-lbl">Hours</span></div>
     <div class="cd-item"><span class="cd-num" id="m2">00</span><span class="cd-lbl">Minutes</span></div>
@@ -190,189 +144,244 @@ h1 {
   <p class="q">&#x1F3AB; Cast Your Vote &#x1F3AB;</p>
 
   <div class="cards">
-    <div class="card card-boy" onclick="castVote('boy')">
+    <div class="card card-boy" onclick="cv('boy')">
       <span class="card-icon">&#x1F466;</span>
       <span class="card-lbl">It's a Boy!</span>
       <span class="card-emoji">&#x1F43E; &#x1F308; &#x2B50;</span>
-      <span class="vote-badge">&#x2714; Your Vote</span>
+      <span class="vb">&#x2714; Your Vote</span>
     </div>
-    <div class="card card-girl" onclick="castVote('girl')">
+    <div class="card card-girl" onclick="cv('girl')">
       <span class="card-icon">&#x1F467;</span>
       <span class="card-lbl">It's a Girl!</span>
       <span class="card-emoji">&#x1F43E; &#x1F338; &#x2B50;</span>
-      <span class="vote-badge">&#x2714; Your Vote</span>
+      <span class="vb">&#x2714; Your Vote</span>
     </div>
   </div>
 
-  <div class="result" id="result"></div>
-  <button class="chg" id="chg" onclick="changeVote()">&#x2190; Change My Vote</button>
+  <div class="res" id="res"></div>
+  <button class="chg" id="chg" onclick="chVote()">&#x2190; Change My Vote</button>
 
-  <div class="tally" id="tally">
-    <h3>&#x1F4CA; Results</h3>
+  <div class="tally" id="tal">
+    <h3>&#x1F4CA; Live Results</h3>
     <p>See how everyone's voting!</p>
     <div class="tr">
       <span class="tl">&#x1F466;</span>
-      <div class="tb"><div class="tbf boy" id="boyB"></div></div>
-      <span class="ts" id="boyS">0 (0%)</span>
+      <div class="tb"><div class="tbf boy" id="bb"></div></div>
+      <span class="ts" id="bs">0 (0%)</span>
     </div>
     <div class="tr">
       <span class="tl">&#x1F467;</span>
-      <div class="tb"><div class="tbf girl" id="girlB"></div></div>
-      <span class="ts" id="girlS">0 (0%)</span>
+      <div class="tb"><div class="tbf girl" id="gb"></div></div>
+      <span class="ts" id="gs">0 (0%)</span>
     </div>
-    <p class="tt" id="total">Total votes: 0</p>
+    <p class="tt" id="tot">Total votes: 0</p>
   </div>
 
   <p class="ft">Made with &#x1F497; for the big surprise</p>
 </div>
 
+<!-- REVEAL TABULATION -->
+<div class="reveal" id="rev">
+  <div class="rev-box">
+    <p class="rev-title">&#x1F389; The Results Are In! &#x1F389;</p>
+    <p class="rev-sub">Here's what everyone guessed</p>
+    <div class="rev-bar">
+      <div class="rev-bar-label">&#x1F466; Boy <span id="rbCount">0</span></div>
+      <div class="rev-track"><div class="rev-fill blue" id="rb"></div></div>
+      <div class="rev-stat" id="rbPct">0%</div>
+    </div>
+    <div class="rev-bar">
+      <div class="rev-bar-label">&#x1F467; Girl <span id="rgCount">0</span></div>
+      <div class="rev-track"><div class="rev-fill pink" id="rg"></div></div>
+      <div class="rev-stat" id="rgPct">0%</div>
+    </div>
+    <p class="rev-total" id="revTot">Total votes: 0</p>
+    <div class="rev-badge" id="winner">&#x1F31F;</div>
+  </div>
+</div>
+
 <script>
 // ── Floating Elements ──
 (function(){
-  const c = document.getElementById('floats');
-  const e = ['&#x1F490;','&#x1F497;','&#x2B50;','&#x2601;','&#x1F338;','&#x1F31F;','&#x1F308;'];
-  for(let i=0;i<20;i++){
-    const el=document.createElement('span'); el.className='flt';
-    el.innerHTML=e[i%e.length];
-    el.style.left=Math.random()*100+'%';
-    el.style.fontSize=(1+Math.random()*1.6)+'rem';
-    el.style.animationDuration=(14+Math.random()*20)+'s';
-    el.style.animationDelay=Math.random()*20+'s';
-    c.appendChild(el);
-  }
+  const c=document.getElementById('fl'),e=['&#x1F490;','&#x1F497;','&#x2B50;','&#x2601;','&#x1F338;','&#x1F31F;','&#x1F308;'];
+  for(let i=0;i<20;i++){const el=document.createElement('span');el.className='flt';el.innerHTML=e[i%e.length];el.style.left=Math.random()*100+'%';el.style.fontSize=(1+Math.random()*1.6)+'rem';el.style.animationDuration=(14+Math.random()*20)+'s';el.style.animationDelay=Math.random()*20+'s';c.appendChild(el)}
 })();
 
-// ── Countdown ──
-const DUE = '2026-05-10T20:00:00+08:00';
-function tick(){
-  const t=new Date(DUE).getTime()-Date.now();
-  const d=t>0?Math.floor(t/864e5):0;
-  const h=t>0?Math.floor((t%864e5)/36e5):0;
-  const m=t>0?Math.floor((t%36e5)/6e4):0;
-  const s=t>0?Math.floor((t%6e4)/1e3):0;
-  const p=n=>String(n).padStart(2,'0');
-  document.getElementById('d').textContent=p(d);
-  document.getElementById('h').textContent=p(h);
-  document.getElementById('m').textContent=p(m);
-  document.getElementById('s').textContent=p(s);
-  document.getElementById('d2').textContent=p(d);
-  document.getElementById('h2').textContent=p(h);
-  document.getElementById('m2').textContent=p(m);
-  document.getElementById('s2').textContent=p(s);
+// ── Supabase (dynamic) ──
+const SUP_URL='https://vnwmzvbflwtgvxwmupms.supabase.co';
+const SUP_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZud216dmJmbHd0Z3Z4d211cG1zIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgzNDg3MjAsImV4cCI6MjA5MzkyNDcyMH0.V4nNsKeeU9_dVcRnlr7FU9xyWAPg3SUPeMiLUweGyuU';
+let sb=null;
+
+function loadSupabase(){
+  return new Promise((res,rej)=>{
+    if(typeof self.supabase!=='undefined'){sb=self.supabase.createClient(SUP_URL,SUP_KEY);res(true);return}
+    const s=document.createElement('script');
+    s.src='https://unpkg.com/@supabase/supabase-js@2';
+    s.onload=()=>{sb=self.supabase.createClient(SUP_URL,SUP_KEY);res(true)};
+    s.onerror=()=>rej('Supabase CDN failed');
+    document.head.appendChild(s);
+  });
 }
-tick();
-setInterval(tick,1000);
 
-// ── Enter ──
-document.getElementById('enterBtn').onclick=function(){
-  document.getElementById('splash').classList.add('hide');
-  launchConfetti('boy');
-  setTimeout(()=>launchConfetti('girl'),300);
-  restoreVote();
-};
-
-// ── Voting (localStorage) ──
-const SK='gv';
-function gd(){
-  try{const r=localStorage.getItem(SK);if(r)return JSON.parse(r)}catch(e){}
-  return{my:null,boy:0,girl:0}
+// Device ID
+const VID='gv_id';
+function gid(){
+  let id=localStorage.getItem(VID);
+  if(!id){try{id=crypto.randomUUID()}catch(e){}if(!id)id=Date.now().toString(36)+Math.random().toString(36).slice(2,10);localStorage.setItem(VID,id)}
+  return id;
 }
-function sd(d){localStorage.setItem(SK,JSON.stringify(d))}
+const did=gid();
 
-function castVote(g){
-  const d=gd();
-  if(d.my===g)return;
-  if(d.my==='boy')d.boy=Math.max(0,d.boy-1);
-  if(d.my==='girl')d.girl=Math.max(0,d.girl-1);
-  d.my=g;
-  if(g==='boy')d.boy++;else d.girl++;
-  sd(d);
-  applyUI(g);
-  updTally(d);
-  launchConfetti(g);
+// ── Voting functions ──
+async function ensureSB(){
+  if(sb)return true;
+  try{return await loadSupabase()}catch(e){console.warn('Supabase not available');return false}
+}
+
+async function fetchTally(){
+  if(!sb)return;
+  try{
+    const{data}=await sb.from('votes').select('gender');
+    if(!data)return;
+    const b=data.filter(v=>v.gender==='boy').length,g=data.filter(v=>v.gender==='girl').length;
+    applyTally(b,g);
+  }catch(e){}
+}
+
+async function fetchMyVote(){
+  if(!sb)return null;
+  try{const{data}=await sb.from('votes').select('gender').eq('voter_id',did).maybeSingle();return data?data.gender:null}catch(e){return null}
+}
+
+async function cv(g){
+  if(!(await ensureSB()))return;
+  const my=await fetchMyVote();
+  if(my===g)return;
+  if(my)await sb.from('votes').update({gender:g}).eq('voter_id',did);
+  else await sb.from('votes').insert({gender:g,voter_id:did});
+  applyUI(g);launchConfetti(g);await fetchTally();
+}
+
+async function chVote(){
+  if(!sb)return;
+  const my=await fetchMyVote();if(!my)return;
+  await sb.from('votes').delete().eq('voter_id',did);
+  document.querySelectorAll('.card').forEach(c=>c.classList.remove('voted','disabled'));
+  document.getElementById('res').className='res';document.getElementById('chg').classList.remove('show');
+  await fetchTally();
 }
 
 function applyUI(g){
   document.querySelectorAll('.card').forEach(c=>c.classList.remove('voted','disabled'));
   document.querySelector('.card-'+g).classList.add('voted');
   document.querySelector('.card-'+(g==='boy'?'girl':'boy')).classList.add('disabled');
-  const r=document.getElementById('result');
-  r.className='result show result-'+g;
-  r.innerHTML=g==='boy'
-    ? '\u2705 You voted <strong>BOY</strong>! \u{1F466} \u{1F436} \u{1F3C8}'
-    : '\u2705 You voted <strong>GIRL</strong>! \u{1F467} \u{1F484} \u{1F380}';
+  const r=document.getElementById('res');r.className='res show res-'+g;
+  r.innerHTML=g==='boy'?'&#x2705; You voted <strong>BOY</strong>! &#x1F466; &#x1F436; &#x1F3C8;':'&#x2705; You voted <strong>GIRL</strong>! &#x1F467; &#x1F484; &#x1F380;';
   document.getElementById('chg').classList.add('show');
 }
 
-function changeVote(){
-  const d=gd();
-  if(!d.my)return;
-  if(d.my==='boy')d.boy=Math.max(0,d.boy-1);
-  if(d.my==='girl')d.girl=Math.max(0,d.girl-1);
-  d.my=null; sd(d);
-  document.querySelectorAll('.card').forEach(c=>c.classList.remove('voted','disabled'));
-  document.getElementById('result').className='result';
-  document.getElementById('chg').classList.remove('show');
-  updTally(d);
-}
-
-function restoreVote(){
-  const d=gd();
-  if(d.my)applyUI(d.my);
-  updTally(d);
-}
-
-function updTally(d){
-  const t=d.boy+d.girl;
-  const bp=t>0?Math.round(d.boy/t*100):0;
-  const gp=t>0?Math.round(d.girl/t*100):0;
-  const sec=document.getElementById('tally');
+function applyTally(b,g){
+  const t=b+g,bp=t>0?Math.round(b/t*100):0,gp=t>0?Math.round(g/t*100):0;
+  const sec=document.getElementById('tal');
   if(!sec.classList.contains('show'))setTimeout(()=>sec.classList.add('show'),100);
-  document.getElementById('boyB').style.width=bp+'%';
-  document.getElementById('girlB').style.width=gp+'%';
-  document.getElementById('boyS').textContent=d.boy+' ('+bp+'%)';
-  document.getElementById('girlS').textContent=d.girl+' ('+gp+'%)';
-  document.getElementById('total').textContent='Total votes: '+t;
+  document.getElementById('bb').style.width=bp+'%';
+  document.getElementById('gb').style.width=gp+'%';
+  document.getElementById('bs').textContent=b+' ('+bp+'%)';
+  document.getElementById('gs').textContent=g+' ('+gp+'%)';
+  document.getElementById('tot').textContent='Total votes: '+t;
 }
+
+async function restoreVote(){
+  if(!(await ensureSB()))return;
+  const my=await fetchMyVote();
+  if(my)applyUI(my);
+  await fetchTally();
+  if(sb){
+    sb.channel('vc').on('postgres_changes',{event:'*',schema:'public',table:'votes'},()=>{fetchTally()}).subscribe();
+  }
+}
+
+// ── Countdown + Reveal Trigger ──
+const DUE='2026-05-10T20:00:00+08:00';
+let revealed=false;
+const cdVals={d:0,h:0,m:0,s:0};
+
+function tick(){
+  const t=new Date(DUE).getTime()-Date.now();
+  cdVals.d=t>0?Math.floor(t/864e5):0;
+  cdVals.h=t>0?Math.floor((t%864e5)/36e5):0;
+  cdVals.m=t>0?Math.floor((t%36e5)/6e4):0;
+  cdVals.s=t>0?Math.floor((t%6e4)/1e3):0;
+  const p=n=>String(n).padStart(2,'0');
+  for(const k of['d','h','m','s']){document.getElementById(k).textContent=p(cdVals[k]);document.getElementById(k+'2').textContent=p(cdVals[k])}
+
+  if(t>0&&t<=300000&&!revealed){revealed=true;showReveal()}
+}
+tick();setInterval(tick,1000);
+
+// ── Reveal Tabulation ──
+async function showReveal(){
+  // Lock voting - hide cards
+  document.querySelector('.cards').style.display='none';
+  document.getElementById('res').style.display='none';
+  document.getElementById('chg').style.display='none';
+  document.querySelector('.q').innerHTML='\u{1F3C6} Voting is closed! \u{1F3C6}';
+
+  // Fetch final tally
+  let b=0,g=0;
+  if(sb){
+    try{const{data}=await sb.from('votes').select('gender');if(data){b=data.filter(v=>v.gender==='boy').length;g=data.filter(v=>v.gender==='girl').length}}catch(e){}
+  }
+  const t=b+g,bp=t>0?Math.round(b/t*100):0,gp=t>0?Math.round(g/t*100):0;
+
+  // Populate reveal
+  document.getElementById('rbCount').textContent=b;
+  document.getElementById('rgCount').textContent=g;
+  document.getElementById('rbPct').textContent=bp+'%';
+  document.getElementById('rgPct').textContent=gp+'%';
+  document.getElementById('revTot').textContent='Total votes: '+t;
+
+  // Show overlay
+  document.getElementById('rev').classList.add('show');
+
+  // Animate bars after render
+  setTimeout(()=>{
+    document.getElementById('rb').style.width=bp+'%';
+    document.getElementById('rg').style.width=gp+'%';
+  },300);
+
+  // Show winner badge
+  setTimeout(()=>{
+    const w=document.getElementById('winner');
+    if(b>g){w.className='rev-badge boy';w.innerHTML='\u{1F466} Team Boy Wins!';launchConfetti('boy')}
+    else if(g>b){w.className='rev-badge girl';w.innerHTML='\u{1F467} Team Girl Wins!';launchConfetti('girl')}
+    else{w.className='rev-badge';w.innerHTML='\u{1F91D} It\'s a Tie!';launchConfetti('boy');setTimeout(()=>launchConfetti('girl'),300)}
+    // Big celebration
+    setTimeout(()=>launchConfetti('boy'),400);
+    setTimeout(()=>launchConfetti('girl'),700);
+  },2500);
+}
+
+// ── Enter ──
+document.getElementById('eb').onclick=function(){
+  document.getElementById('sp').classList.add('hide');
+  launchConfetti('boy');setTimeout(()=>launchConfetti('girl'),300);
+  restoreVote();
+};
 
 // ── Confetti ──
-const cv=document.getElementById('confetti-canvas'),cx=cv.getContext('2d');
-let W,H;
+const cv=document.getElementById('cc'),cx=cv.getContext('2d');let W,H;
 function rs(){W=cv.width=innerWidth;H=cv.height=innerHeight}
-rs(); addEventListener('resize',rs);
-const pt=[],
-  CB=['#42a5f5','#64b5f6','#90caf9','#1e88e5','#1565c0'],
-  CG=['#ec407a','#f06292','#f48fb1','#e91e63','#c62828'];
+rs();addEventListener('resize',rs);
+const pt=[],CB=['#42a5f5','#64b5f6','#90caf9','#1e88e5','#1565c0'],CG=['#ec407a','#f06292','#f48fb1','#e91e63','#c62828'];
 class Ct{
-  constructor(c){
-    this.x=Math.random()*W;this.y=-20-Math.random()*100;
-    this.w=6+Math.random()*8;this.h=4+Math.random()*6;
-    this.color=c[Math.floor(Math.random()*c.length)];
-    this.vy=1.5+Math.random()*2.5;this.vx=(Math.random()-.5)*1.8;
-    this.rot=Math.random()*360;this.rs=(Math.random()-.5)*8;
-    this.shape=Math.random()>.5?'r':'c';this.op=.9+Math.random()*.1;
-  }
+  constructor(c){this.x=Math.random()*W;this.y=-20-Math.random()*100;this.w=6+Math.random()*8;this.h=4+Math.random()*6;this.color=c[Math.floor(Math.random()*c.length)];this.vy=1.5+Math.random()*2.5;this.vx=(Math.random()-.5)*1.8;this.rot=Math.random()*360;this.rs=(Math.random()-.5)*8;this.shape=Math.random()>.5?'r':'c';this.op=.9+Math.random()*.1}
   u(){this.y+=this.vy;this.x+=this.vx;this.rot+=this.rs;this.vy+=.04;this.vx*=.999}
-  d(ctx){
-    ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rot*Math.PI/180);
-    ctx.globalAlpha=this.op;ctx.fillStyle=this.color;
-    if(this.shape==='r')ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);
-    else{ctx.beginPath();ctx.arc(0,0,this.w/2,0,Math.PI*2);ctx.fill()}
-    ctx.restore();
-  }
+  d(ctx){ctx.save();ctx.translate(this.x,this.y);ctx.rotate(this.rot*Math.PI/180);ctx.globalAlpha=this.op;ctx.fillStyle=this.color;if(this.shape==='r')ctx.fillRect(-this.w/2,-this.h/2,this.w,this.h);else{ctx.beginPath();ctx.arc(0,0,this.w/2,0,Math.PI*2);ctx.fill()}ctx.restore()}
 }
 let aid=null;
-function launchConfetti(g){
-  const c=g==='boy'?CB:CG;
-  for(let i=0;i<80;i++)pt.push(new Ct(c));
-  if(!aid)anim();
-}
-function anim(){
-  cx.clearRect(0,0,W,H);
-  for(let i=pt.length-1;i>=0;i--){pt[i].u();pt[i].d(cx);if(pt[i].y>H+30||pt[i].x<-50||pt[i].x>W+50)pt.splice(i,1)}
-  if(pt.length>0)aid=requestAnimationFrame(anim);
-  else{aid=null;cx.clearRect(0,0,W,H)}
-}
+function launchConfetti(g){const c=g==='boy'?CB:CG;for(let i=0;i<80;i++)pt.push(new Ct(c));if(!aid)anim()}
+function anim(){cx.clearRect(0,0,W,H);for(let i=pt.length-1;i>=0;i--){pt[i].u();pt[i].d(cx);if(pt[i].y>H+30||pt[i].x<-50||pt[i].x>W+50)pt.splice(i,1)}if(pt.length>0)aid=requestAnimationFrame(anim);else{aid=null;cx.clearRect(0,0,W,H)}}
 </script>
 </body>
 </html>
