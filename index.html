@@ -108,9 +108,14 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 .pr.show .pr-box{transform:scale(1)}
 .pr-hearts{font-size:3rem;margin-bottom:10px;animation:heartPulse 1.5s ease infinite}
 @keyframes heartPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
-.pr-title{font-size:4rem;font-weight:900;margin-bottom:8px;background:linear-gradient(135deg,#ec407a,#ab47bc,#42a5f5);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1}
-.pr-sub{font-size:1.4rem;color:#7e57c2;font-weight:700;margin-bottom:20px}
-.pr-emoji{font-size:3rem;margin-top:10px;animation:float 3s ease-in-out infinite}
+.pr-title{font-size:clamp(4rem,18vw,12rem);font-weight:900;line-height:1.05;margin-bottom:4px;text-shadow:0 4px 20px rgba(0,0,0,.08)}
+.pr-line{display:block;overflow:hidden;height:1.1em}
+.pr-let{display:inline-block;opacity:0;transform:translateY(100%) rotate(15deg);animation:letIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+.pr.show .pr-let{animation:letIn .5s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes letIn{0%{opacity:0;transform:translateY(100%) rotate(15deg)}100%{opacity:1;transform:translateY(0) rotate(0deg)}}
+.pr-sub{font-size:clamp(1rem,4vw,2rem);color:#7e57c2;font-weight:700;margin-top:20px;opacity:0;animation:fadeUp .8s ease forwards;animation-delay:2s}
+@keyframes fadeUp{0%{opacity:0;transform:translateY(20px)}100%{opacity:1;transform:translateY(0)}}
+.pr-emoji{font-size:clamp(2rem,6vw,4rem);margin-top:16px;opacity:0;animation:fadeUp .8s ease forwards;animation-delay:2.5s}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
 .pr-spark{position:fixed;pointer-events:none;font-size:1.5rem;opacity:0;animation:sparkle 2s ease-out forwards}
 @keyframes sparkle{0%{opacity:0;transform:translateY(0) scale(0) rotate(0deg)}30%{opacity:1;transform:translateY(-20px) scale(1.2) rotate(180deg)}100%{opacity:0;transform:translateY(-80px) scale(0) rotate(360deg)}}
@@ -222,7 +227,7 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 <div class="pr" id="pr">
   <div class="pr-box">
     <div class="pr-hearts">&#x1F498;</div>
-    <div class="pr-title">Will You<br>Marry Me?</div>
+    <div class="pr-title" id="prTitle"></div>
     <div class="pr-sub">&#x2728; A new journey begins &#x2728;</div>
     <div class="pr-emoji">&#x1F48D; &#x1F490; &#x1F338;</div>
   </div>
@@ -673,15 +678,35 @@ function showPuzzle() {
 
 function closePuzzle() {
   document.getElementById('pz').classList.remove('show');
-  // Start music silently
   try { music.play().then(function(){musicBtn.classList.add('playing');musicPlaying=true}).catch(function(){}) } catch(e) {}
-  // Show proposal
   setTimeout(function() {
     document.getElementById('pr').classList.add('show');
     launchSparkles();
     setInterval(launchSparkles, 1800);
   }, 500);
 }
+
+function buildProposalText() {
+  var lines = ['Will You', 'Marry Me?'];
+  var colors = ['#ec407a', '#ab47bc', '#42a5f5'];
+  var container = document.getElementById('prTitle');
+  if (!container) return;
+  container.innerHTML = '';
+  lines.forEach(function(line, li) {
+    var span = document.createElement('span');
+    span.className = 'pr-line';
+    for (var i = 0; i < line.length; i++) {
+      var ch = document.createElement('span');
+      ch.className = 'pr-let';
+      ch.textContent = line[i] === ' ' ? '\u00A0' : line[i];
+      ch.style.color = colors[(li + i) % colors.length];
+      ch.style.animationDelay = ((li === 0 ? 0 : 0.6) + i * 0.07) + 's';
+      span.appendChild(ch);
+    }
+    container.appendChild(span);
+  });
+}
+buildProposalText();
 
 function launchSparkles() {
   var emojis = ['\u{2728}', '\u{1F498}', '\u{1F48D}', '\u{2B50}', '\u{1F490}', '\u{2665}'];
