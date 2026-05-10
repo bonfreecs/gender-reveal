@@ -82,6 +82,16 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
 .wr{margin-top:14px;font-size:1.1rem;font-weight:800;color:#6a1b9a;min-height:1.6em;transition:opacity .3s}
 .wc button:last-child{margin-top:12px;padding:6px 20px;border-radius:30px;border:none;background:rgba(0,0,0,.06);color:#888;font-size:.82rem;font-weight:600;cursor:pointer}
 .wc button:last-child:hover{background:rgba(0,0,0,.1)}
+.pz{position:fixed;inset:0;z-index:500;display:flex;justify-content:center;align-items:center;pointer-events:none;opacity:0;transition:opacity .6s}
+.pz.show{opacity:1}
+.pz-inner{position:relative;width:320px;height:200px}
+.pz-img{position:absolute;width:160px;height:200px;object-fit:cover;border-radius:20px;box-shadow:0 20px 50px rgba(0,0,0,.25);opacity:0}
+.pz-img.left{left:0;transform:translateX(-120vw) rotate(-30deg)}
+.pz-img.right{right:0;transform:translateX(120vw) rotate(30deg)}
+.pz.show .pz-img.left{animation:pzLeft 1.2s cubic-bezier(.34,1.56,.64,1) forwards}
+.pz.show .pz-img.right{animation:pzRight 1.2s cubic-bezier(.34,1.56,.64,1) forwards}
+@keyframes pzLeft{0%{opacity:0;transform:translateX(-120vw) rotate(-30deg)}100%{opacity:1;transform:translateX(0) rotate(0deg)}}
+@keyframes pzRight{0%{opacity:0;transform:translateX(120vw) rotate(30deg)}100%{opacity:1;transform:translateX(0) rotate(0deg)}}
 
 @media(max-width:600px){
   .box{padding:32px 18px 28px}
@@ -106,7 +116,6 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <div class="box">
     <h1>Who's Coming?</h1>
     <p class="sub">&#x1F497; A little miracle is on the way &#x1F497;</p>
-    <img src="images/baby1.jpg" alt="Baby" style="width:140px;height:140px;object-fit:cover;border-radius:24px;margin-bottom:12px;display:block;margin-left:auto;margin-right:auto;box-shadow:0 4px 16px rgba(0,0,0,.08)">
     <p style="font-size:.78rem;color:#b39ddb;margin-bottom:24px">Voting ends 8:00 PM PHT</p>
     <div class="cd">
       <div class="cd-item"><span class="cd-num" id="d">00</span><span class="cd-lbl">Days</span></div>
@@ -156,7 +165,6 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
   <button class="chg" id="chg" onclick="chVote()">&#x2190; Change My Vote</button>
 
   <p class="ft">Made with &#x1F497; for the big surprise</p>
-  <img src="images/baby2.jpg" alt="Baby" style="width:100px;height:100px;object-fit:cover;border-radius:16px;display:block;margin:10px auto 0;opacity:.8;box-shadow:0 4px 12px rgba(0,0,0,.06)">
   <button class="wb" onclick="openWheel()">&#x1F3AF; Reveal the Gender &#x1F3AF;</button>
 </div>
 
@@ -172,6 +180,14 @@ h1{font-size:2.6rem;margin-bottom:4px;background:linear-gradient(135deg,#ec407a,
     <button class="ws" id="wsBtn" onclick="spinWheel()">&#x1F504; SPIN!</button>
     <div class="wr" id="wr"></div>
     <button onclick="closeWheel()">&#x2716; Close</button>
+  </div>
+</div>
+
+<!-- PUZZLE REVEAL OVERLAY -->
+<div class="pz" id="pz">
+  <div class="pz-inner">
+    <img class="pz-img left" src="images/baby1.jpg" alt="">
+    <img class="pz-img right" src="images/baby2.jpg" alt="">
   </div>
 </div>
 
@@ -573,12 +589,19 @@ function spinWheel() {
       btn.textContent = '\u{1F504} SPIN AGAIN';
       document.getElementById('wr').innerHTML = '\u{1F467} Girl!';
       launchConfetti('girl');
+      setTimeout(showPuzzle, 800);
     }
   }
   requestAnimationFrame(animateSpin);
 }
 
 drawWheel(0);
+
+function showPuzzle() {
+  var pz = document.getElementById('pz');
+  pz.classList.add('show');
+  setTimeout(function() { pz.classList.remove('show'); }, 4000);
+}
 </script>
 </body>
 </html>
